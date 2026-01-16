@@ -1,8 +1,10 @@
+import ReaderShell from '../reader/ReaderShell'
+
 export default function ReaderPage() {
   return (
-    <section className="panel">
+    <section>
       <h1>Reader</h1>
-      <p>Select a book from your library.</p>
+      <ReaderShell />
     </section>
   )
 }

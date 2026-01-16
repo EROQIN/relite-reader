@@ -1,0 +1,27 @@
+import { useMemo } from 'react'
+import { useParams } from 'react-router-dom'
+import { loadLibrary } from '../lib/library'
+import EpubReader from './EpubReader'
+import PdfReader from './PdfReader'
+import TxtReader from './TxtReader'
+import MobiReader from './MobiReader'
+
+export default function ReaderShell() {
+  const { bookId } = useParams()
+  const item = useMemo(() => loadLibrary().find((i) => i.id === bookId), [bookId])
+
+  if (!item) return <p className="muted">Book not found.</p>
+
+  switch (item.format) {
+    case 'epub':
+      return <EpubReader item={item} />
+    case 'pdf':
+      return <PdfReader item={item} />
+    case 'txt':
+      return <TxtReader item={item} />
+    case 'mobi':
+      return <MobiReader item={item} />
+    default:
+      return <p className="muted">Unsupported format.</p>
+  }
+}
