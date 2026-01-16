@@ -1,4 +1,4 @@
-import { loadLibrary, removeLibraryItem, upsertLibraryItem } from './library'
+import { loadLibrary, removeLibraryItem, updateLastOpened, upsertLibraryItem } from './library'
 
 beforeEach(() => {
   localStorage.clear()
@@ -30,4 +30,17 @@ test('removeLibraryItem removes item', () => {
   })
   removeLibraryItem('1')
   expect(loadLibrary()).toEqual([])
+})
+
+test('updateLastOpened sets timestamp', () => {
+  upsertLibraryItem({
+    id: '1',
+    title: 'Test Book',
+    format: 'epub',
+    source: 'local',
+  })
+
+  updateLastOpened('1', '2026-01-16T00:00:00Z')
+  const items = loadLibrary()
+  expect(items[0].lastOpened).toBe('2026-01-16T00:00:00Z')
 })

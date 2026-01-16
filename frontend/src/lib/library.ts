@@ -33,3 +33,11 @@ export function removeLibraryItem(id: string) {
   const items = loadLibrary().filter((i) => i.id !== id)
   saveLibrary(items)
 }
+
+export function updateLastOpened(id: string, timestamp: string) {
+  const items = loadLibrary()
+  const idx = items.findIndex((i) => i.id === id)
+  if (idx < 0) return
+  items[idx] = { ...items[idx], lastOpened: timestamp }
+  saveLibrary(items)
+}
