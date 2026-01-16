@@ -1,11 +1,39 @@
 :root {
-  font-family: 'Alegreya', Georgia, serif;
-  color: #1f1d1a;
-  background: #f6f3ee;
+  font-family: 'IBM Plex Sans', 'Noto Sans SC', 'PingFang SC', sans-serif;
+  color: #1b1916;
+  background-color: #f4f0ea;
+  --bg: #f4f0ea;
+  --bg-soft: #fbf7f1;
+  --ink: #1b1916;
+  --ink-soft: #5b544c;
+  --accent: #b35a2f;
+  --accent-soft: #e7c3ad;
+  --line: #e3dbd2;
+  --shadow: 0 22px 60px rgba(27, 25, 22, 0.08);
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  background: radial-gradient(circle at top left, #fff8ef, transparent 45%),
+    radial-gradient(circle at 20% 30%, #f0e7df, transparent 55%),
+    linear-gradient(120deg, #f4f0ea 0%, #f8f3ec 40%, #f1ece5 100%);
+  color: var(--ink);
+}
+
+h1,
+h2,
+.brand {
+  font-family: 'Fraunces', 'Noto Serif SC', 'Source Han Serif SC', serif;
+  letter-spacing: 0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .app-shell {
@@ -17,18 +45,45 @@ body {
 .app-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(251, 247, 241, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.app-nav {
+  display: flex;
+  gap: 1rem;
+  font-weight: 500;
+}
+
+.app-nav a {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  transition: background 200ms ease;
+}
+
+.app-nav a:hover {
+  background: rgba(179, 90, 47, 0.12);
 }
 
 .app-main {
-  padding: 1.5rem;
+  padding: 2rem 1.75rem 3rem;
 }
 
 .panel {
-  background: #fffdf8;
-  border: 1px solid #e7e1d7;
-  padding: 1.5rem;
-  border-radius: 16px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  padding: 1.75rem;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  animation: rise 420ms ease both;
 }
 
 .library-grid {
@@ -38,5 +93,142 @@ body {
 }
 
 .muted {
-  color: #6b645c;
+  color: var(--ink-soft);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.5rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(179, 90, 47, 0.15);
+}
+
+.button.primary {
+  background: var(--accent);
+  color: #fffaf5;
+  border-color: transparent;
+}
+
+.library-optimized {
+  display: grid;
+  gap: 2rem;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  border-radius: 24px;
+  background: linear-gradient(120deg, #fff8f2 0%, #f6ede4 100%);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  animation: fade-in 520ms ease both;
+}
+
+.overline {
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+.split-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.book-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.book-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fffdf8;
+}
+
+.chip {
+  display: inline-flex;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .hero {
+    animation: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

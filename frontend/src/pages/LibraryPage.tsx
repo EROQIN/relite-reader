@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import LibraryOptimized from '../compare/LibraryOptimized'
 import { detectFormat } from '../lib/format'
 import { loadLibrary, removeLibraryItem, upsertLibraryItem } from '../lib/library'
 
@@ -36,41 +37,6 @@ export default function LibraryPage() {
   }
 
   return (
-    <section>
-      <header className="section-header">
-        <div>
-          <h1>Your Library</h1>
-          <p className="muted">Import local books or connect WebDAV.</p>
-        </div>
-        <label className="button">
-          Import
-          <input type="file" multiple hidden onChange={onImport} />
-        </label>
-      </header>
-      <div className="library-grid">
-        <div className="panel">
-          <h2>WebDAV Library</h2>
-          <p className="muted">Coming soon.</p>
-        </div>
-        <div className="panel">
-          <h2>Local Imports</h2>
-          {localItems.length === 0 ? (
-            <p className="muted">No local books yet.</p>
-          ) : (
-            <ul className="book-list">
-              {localItems.map((item) => (
-                <li key={item.id} className="book-row">
-                  <div>
-                    <strong>{item.title}</strong>
-                    <span className="chip">{item.format.toUpperCase()}</span>
-                  </div>
-                  <button onClick={() => onRemove(item.id)}>Remove</button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-    </section>
+    <LibraryOptimized localItems={localItems} onImport={onImport} onRemove={onRemove} />
   )
 }
