@@ -1,7 +1,12 @@
 import { useMemo, useState } from 'react'
 import LibraryOptimized from '../compare/LibraryOptimized'
 import { detectFormat } from '../lib/format'
-import { loadLibrary, removeLibraryItem, upsertLibraryItem } from '../lib/library'
+import {
+  loadLibrary,
+  removeLibraryItem,
+  updateLastOpened,
+  upsertLibraryItem,
+} from '../lib/library'
 import { saveText } from '../lib/textStore'
 
 export default function LibraryPage() {
@@ -30,6 +35,7 @@ export default function LibraryPage() {
         const text = await file.text()
         saveText(id, text)
       }
+
       upsertLibraryItem(item)
       next.unshift(item)
     }
@@ -42,7 +48,20 @@ export default function LibraryPage() {
     setItems((prev) => prev.filter((item) => item.id !== id))
   }
 
+  const onOpen = (id: string) => {
+    const timestamp = new Date().toISOString()
+    updateLastOpened(id, timestamp)
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, lastOpened: timestamp } : item))
+    )
+  }
+
   return (
-    <LibraryOptimized localItems={localItems} onImport={onImport} onRemove={onRemove} />
+    <LibraryOptimized
+      localItems={localItems}
+      onImport={onImport}
+      onRemove={onRemove}
+      onOpen={onOpen}
+    />
   )
 }

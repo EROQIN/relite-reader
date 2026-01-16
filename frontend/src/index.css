@@ -181,6 +181,12 @@ a {
   background: #fffdf8;
 }
 
+.row-actions {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .chip {
   display: inline-flex;
   padding: 0.15rem 0.55rem;
@@ -197,6 +203,13 @@ a {
   font-size: 1rem;
   color: var(--ink);
   margin-top: 1rem;
+}
+
+.timestamp {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin-top: 0.35rem;
 }
 
 @media (max-width: 768px) {

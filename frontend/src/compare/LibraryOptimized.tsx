@@ -1,12 +1,19 @@
+import { Link } from 'react-router-dom'
 import { LibraryItem } from '../lib/library'
 
 interface Props {
   localItems: LibraryItem[]
   onImport: (event: React.ChangeEvent<HTMLInputElement>) => void
   onRemove: (id: string) => void
+  onOpen: (id: string) => void
 }
 
-export default function LibraryOptimized({ localItems, onImport, onRemove }: Props) {
+export default function LibraryOptimized({
+  localItems,
+  onImport,
+  onRemove,
+  onOpen,
+}: Props) {
   return (
     <section className="library-optimized">
       <header className="hero">
@@ -38,8 +45,20 @@ export default function LibraryOptimized({ localItems, onImport, onRemove }: Pro
                   <div>
                     <strong>{item.title}</strong>
                     <span className="chip">{item.format.toUpperCase()}</span>
+                    {item.lastOpened && (
+                      <span className="timestamp">Last opened {item.lastOpened}</span>
+                    )}
                   </div>
-                  <button onClick={() => onRemove(item.id)}>Remove</button>
+                  <div className="row-actions">
+                    <Link
+                      to={`/reader/${item.id}`}
+                      onClick={() => onOpen(item.id)}
+                      className="button"
+                    >
+                      Open
+                    </Link>
+                    <button onClick={() => onRemove(item.id)}>Remove</button>
+                  </div>
                 </li>
               ))}
             </ul>
