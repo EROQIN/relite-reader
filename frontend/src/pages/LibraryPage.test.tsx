@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import LibraryPage from './LibraryPage'
 
 vi.mock('../lib/library', () => ({
@@ -8,10 +8,24 @@ vi.mock('../lib/library', () => ({
 }))
 
 vi.mock('../lib/format', () => ({
-  detectFormat: vi.fn(() => 'epub'),
+  detectFormat: vi.fn(() => 'txt'),
 }))
 
-test('shows empty local library state', () => {
+vi.mock('../lib/textStore', () => ({
+  saveText: vi.fn(),
+}))
+
+test('saves txt content on import', async () => {
+  const { saveText } = await import('../lib/textStore')
   render(<LibraryPage />)
-  expect(screen.getByText('No local books yet.')).toBeInTheDocument()
+
+  const file = new File(['hello'], 'note.txt', { type: 'text/plain' })
+  Object.defineProperty(file, 'text', { value: () => Promise.resolve('hello') })
+
+  const input = screen.getByLabelText('Import') as HTMLInputElement
+  fireEvent.change(input, { target: { files: [file] } })
+
+  await waitFor(() => {
+    expect(saveText).toHaveBeenCalledWith(expect.any(String), 'hello')
+  })
 })

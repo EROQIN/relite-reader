@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import LibraryOptimized from '../compare/LibraryOptimized'
 import { detectFormat } from '../lib/format'
 import { loadLibrary, removeLibraryItem, upsertLibraryItem } from '../lib/library'
+import { saveText } from '../lib/textStore'
 
 export default function LibraryPage() {
   const [items, setItems] = useState(() => loadLibrary())
@@ -23,6 +24,11 @@ export default function LibraryPage() {
         format,
         source: 'local' as const,
         fileName: file.name,
+      }
+
+      if (format === 'txt') {
+        const text = await file.text()
+        saveText(id, text)
       }
       upsertLibraryItem(item)
       next.unshift(item)
