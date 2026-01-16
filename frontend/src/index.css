@@ -205,6 +205,23 @@ a {
   margin-top: 1rem;
 }
 
+.reader-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.reader-progress {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.reader-scroll {
+  max-height: 60vh;
+  overflow: auto;
+}
+
 .timestamp {
   display: block;
   font-size: 0.75rem;
