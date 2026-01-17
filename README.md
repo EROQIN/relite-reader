@@ -12,7 +12,7 @@ Relite Reader is a WebDAV‑backed reading app with a focused, customizable read
 ## Usage Manual
 
 ### 1) Sign in / Register
-The backend exposes JWT auth endpoints. The current UI provides a basic login form without wiring; integrate the token into your auth flow and store it in local storage under `relite.auth.token` to enable preference sync.
+Use the sign‑in page to authenticate or create an account. On success, the app stores the JWT in local storage under `relite.auth.token` and uses it to sync preferences across devices.
 
 ### 2) Connect WebDAV
 Use the WebDAV API to create a connection:
