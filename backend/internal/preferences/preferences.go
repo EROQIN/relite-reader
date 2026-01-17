@@ -17,6 +17,7 @@ type ReaderPreferences struct {
 }
 
 type UserPreferences struct {
+	Locale string            `json:"locale"`
 	Reader ReaderPreferences `json:"reader"`
 }
 
@@ -25,23 +26,29 @@ var allowedThemes = map[string]struct{}{
 	"sepia": {},
 	"night": {},
 	"slate": {},
-	"mist": {},
+	"mist":  {},
 }
 
 var allowedFonts = map[string]struct{}{
-	"sans": {},
+	"sans":  {},
 	"serif": {},
-	"mono": {},
+	"mono":  {},
 }
 
 var allowedAlignments = map[string]struct{}{
-	"left": {},
+	"left":    {},
 	"justify": {},
 }
 
 var allowedLayouts = map[string]struct{}{
 	"single":  {},
 	"columns": {},
+}
+
+var allowedLocales = map[string]string{
+	"en":    "en",
+	"zh":    "zh-CN",
+	"zh-CN": "zh-CN",
 }
 
 func DefaultReaderPreferences() ReaderPreferences {
@@ -61,7 +68,7 @@ func DefaultReaderPreferences() ReaderPreferences {
 }
 
 func DefaultUserPreferences() UserPreferences {
-	return UserPreferences{Reader: DefaultReaderPreferences()}
+	return UserPreferences{Locale: "en", Reader: DefaultReaderPreferences()}
 }
 
 func NormalizeReaderPreferences(input ReaderPreferences) ReaderPreferences {
@@ -102,7 +109,10 @@ func NormalizeReaderPreferences(input ReaderPreferences) ReaderPreferences {
 }
 
 func NormalizeUserPreferences(input UserPreferences) UserPreferences {
-	return UserPreferences{Reader: NormalizeReaderPreferences(input.Reader)}
+	return UserPreferences{
+		Locale: normalizeLocale(input.Locale),
+		Reader: NormalizeReaderPreferences(input.Reader),
+	}
 }
 
 func clampInt(value, min, max int) int {
@@ -126,4 +136,11 @@ func clampFloat(value, min, max float64) float64 {
 		return max
 	}
 	return value
+}
+
+func normalizeLocale(input string) string {
+	if value, ok := allowedLocales[input]; ok {
+		return value
+	}
+	return "en"
 }
