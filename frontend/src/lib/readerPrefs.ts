@@ -3,7 +3,7 @@ import { loadJson, saveJson, PREFS_KEY } from './storage'
 const BOOK_PREFS_KEY = 'relite.prefs.books'
 const CUSTOM_PRESETS_KEY = 'relite.prefs.customPresets'
 
-export type ReaderTheme = 'paper' | 'sepia' | 'night'
+export type ReaderTheme = 'paper' | 'sepia' | 'night' | 'slate' | 'mist'
 export type ReaderFont = 'sans' | 'serif' | 'mono'
 export type ReaderAlign = 'left' | 'justify'
 export type ReaderLayoutMode = 'single' | 'columns'
@@ -18,6 +18,8 @@ export interface ReaderPrefs {
   layoutMode: ReaderLayoutMode
   focusMode: boolean
   readingSpeed: number
+  background: string
+  brightness: number
 }
 
 export interface ReaderPreset {
@@ -36,6 +38,8 @@ export const defaultReaderPrefs: ReaderPrefs = {
   layoutMode: 'single',
   focusMode: false,
   readingSpeed: 240,
+  background: '',
+  brightness: 1,
 }
 
 export const readerPresets: ReaderPreset[] = [
@@ -54,12 +58,27 @@ export const readerPresets: ReaderPreset[] = [
     label: 'Night Studio',
     prefs: { ...defaultReaderPrefs, theme: 'night', fontSize: 19, lineHeight: 1.8 },
   },
+  {
+    id: 'slate',
+    label: 'Slate Focus',
+    prefs: { ...defaultReaderPrefs, theme: 'slate', font: 'sans', fontSize: 17 },
+  },
+  {
+    id: 'mist',
+    label: 'Mist Daylight',
+    prefs: { ...defaultReaderPrefs, theme: 'mist', font: 'sans', fontSize: 18 },
+  },
 ]
 
-const normalizePrefs = (prefs: Partial<ReaderPrefs> | null | undefined): ReaderPrefs => ({
-  ...defaultReaderPrefs,
-  ...prefs,
-})
+const normalizePrefs = (prefs: Partial<ReaderPrefs> | null | undefined): ReaderPrefs => {
+  if (!prefs) return { ...defaultReaderPrefs }
+  return {
+    ...defaultReaderPrefs,
+    ...prefs,
+    background: prefs.background ?? defaultReaderPrefs.background,
+    brightness: prefs.brightness ?? defaultReaderPrefs.brightness,
+  }
+}
 
 export function loadCustomPresets(): ReaderPreset[] {
   const presets = loadJson<ReaderPreset[]>(CUSTOM_PRESETS_KEY, [])

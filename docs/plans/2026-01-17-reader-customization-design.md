@@ -1,45 +1,20 @@
-# Reader UX & Customization Design
+# Plan: Reader Customization + Clean UI (Design)
 
-## Overview
-This design upgrades the reading experience with a dedicated controls panel and persistent user preferences. Readers can adjust typography, spacing, page width, and theme while reading. Preferences are stored locally for MVP and applied across formats. The UX focuses on calm, distraction-free reading with quick access to customization.
+## Goal
+Expand reader personalization (background, brightness, themes) while keeping the UI clean and production-ready.
 
-## Goals
-- Provide an in-reader settings panel (typography, spacing, theme, alignment).
-- Persist preferences locally and apply them across sessions.
-- Improve layout for readability (max-width, balanced margins, progress display).
-- Keep UI accessible and mobile-friendly.
+## UX Summary
+- Add background color selection (preset swatches + color picker).
+- Add brightness slider for comfortable reading in various environments.
+- Keep customization inside the settings panel to avoid UI clutter.
+- Preserve built-in themes and add a couple of extra curated ones.
 
-## Non-goals (MVP)
-- Backend preference sync.
-- Per-book preferences (global only for now).
-- Advanced typography like hyphenation or ligatures.
+## Persistence
+- Preferences continue to store locally and sync to backend when a user token is available.
 
-## Information Architecture
-- Reader page
-  - Toolbar (title, progress, settings toggle)
-  - Reading surface (content area)
-  - Settings panel (form controls)
+## Visual + Interaction
+- Settings panel groups controls into sections with subtle dividers.
+- Provide concise helper text for new controls.
 
-## Preferences Model
-- Theme: `paper | sepia | night`
-- Font family: `sans | serif | mono`
-- Font size: range (14–22)
-- Line height: range (1.4–2.0)
-- Page width: range (520–900)
-- Text align: `left | justify`
-
-## UX Behavior
-- Settings toggle opens a panel on the right (drawer on mobile).
-- Changes apply immediately to the reading surface.
-- Reset button restores defaults.
-- Progress remains visible in the toolbar.
-
-## Accessibility
-- All inputs have labels and keyboard focus.
-- Contrast preserved per theme.
-- `prefers-reduced-motion` respected for transitions.
-
-## Testing
-- Unit tests for preference store (defaults + persistence).
-- Reader controls smoke tests (auth requirement not needed).
-
+## Mobile
+- Ensure controls remain readable and touch-friendly at small widths.

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { useParams } from 'react-router-dom'
 import ReaderShell from '../reader/ReaderShell'
 import ReaderControls from '../reader/ReaderControls'
@@ -18,6 +18,7 @@ import {
   saveReaderPrefsForBook,
   clearReaderPrefsForBook,
 } from '../lib/readerPrefs'
+import { fetchPreferences, getAuthToken, savePreferences } from '../lib/preferencesApi'
 
 const fontMap: Record<ReaderPrefs['font'], string> = {
   sans: "'IBM Plex Sans', 'Noto Sans SC', 'PingFang SC', sans-serif",
@@ -25,7 +26,7 @@ const fontMap: Record<ReaderPrefs['font'], string> = {
   mono: "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
 }
 
-const themes: ReaderPrefs['theme'][] = ['paper', 'sepia', 'night']
+const themes: ReaderPrefs['theme'][] = ['paper', 'sepia', 'night', 'slate', 'mist']
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
@@ -47,22 +48,27 @@ export default function ReaderPage() {
   const [customPresets, setCustomPresets] = useState(() => loadCustomPresets())
   const [open, setOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const token = getAuthToken()
 
   const allPresets = useMemo(
     () => [...readerPresets, ...customPresets],
     [customPresets]
   )
 
-  const style = useMemo(
-    () => ({
-      ['--reader-font' as never]: fontMap[prefs.font],
-      ['--reader-size' as never]: `${prefs.fontSize}px`,
-      ['--reader-line' as never]: String(prefs.lineHeight),
-      ['--reader-width' as never]: `${prefs.pageWidth}px`,
-      ['--reader-align' as never]: prefs.textAlign,
-    }),
-    [prefs]
-  )
+  const style = useMemo(() => {
+    const base: CSSProperties = {
+      ['--reader-font']: fontMap[prefs.font],
+      ['--reader-size']: `${prefs.fontSize}px`,
+      ['--reader-line']: String(prefs.lineHeight),
+      ['--reader-width']: `${prefs.pageWidth}px`,
+      ['--reader-align']: prefs.textAlign,
+      ['--reader-brightness']: String(prefs.brightness),
+    }
+    if (prefs.background) {
+      base['--reader-custom-bg'] = prefs.background
+    }
+    return base
+  }, [prefs])
 
   const updatePrefs = (next: ReaderPrefs) => {
     setPrefs(next)
@@ -156,6 +162,29 @@ export default function ReaderPage() {
       fontSize: clamp(prefs.fontSize + delta, 14, 22),
     })
   }
+
+  useEffect(() => {
+    if (!token || bookScoped) {
+      return
+    }
+    let active = true
+    void fetchPreferences(token).then((remote) => {
+      if (!active || !remote) return
+      setPrefs(remote)
+      saveReaderPrefs(remote)
+    })
+    return () => {
+      active = false
+    }
+  }, [token, bookScoped])
+
+  useEffect(() => {
+    if (!token || bookScoped) return
+    const handle = window.setTimeout(() => {
+      void savePreferences(token, prefs)
+    }, 400)
+    return () => window.clearTimeout(handle)
+  }, [token, prefs, bookScoped])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {

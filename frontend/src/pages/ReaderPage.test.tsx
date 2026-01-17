@@ -20,6 +20,8 @@ vi.mock('../lib/readerPrefs', () => ({
     layoutMode: 'single',
     focusMode: false,
     readingSpeed: 240,
+    background: '',
+    brightness: 1,
   },
   loadReaderPrefs: () => ({
     theme: 'paper',
@@ -31,6 +33,8 @@ vi.mock('../lib/readerPrefs', () => ({
     layoutMode: 'single',
     focusMode: false,
     readingSpeed: 240,
+    background: '',
+    brightness: 1,
   }),
   loadReaderPrefsForBook: () => null,
   loadCustomPresets: () => [],
@@ -57,6 +61,8 @@ vi.mock('../lib/readerPrefs', () => ({
         layoutMode: 'single',
         focusMode: false,
         readingSpeed: 240,
+        background: '',
+        brightness: 1,
       },
     },
   ],
@@ -64,6 +70,12 @@ vi.mock('../lib/readerPrefs', () => ({
 
 vi.mock('../reader/ReaderQuickControls', () => ({
   default: () => <div>Quick</div>,
+}))
+
+vi.mock('../lib/preferencesApi', () => ({
+  getAuthToken: () => null,
+  fetchPreferences: vi.fn(),
+  savePreferences: vi.fn(),
 }))
 
 test('renders quick controls', () => {

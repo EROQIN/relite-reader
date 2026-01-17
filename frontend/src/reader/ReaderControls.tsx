@@ -33,6 +33,13 @@ export default function ReaderControls({
 }) {
   const [newPresetName, setNewPresetName] = useState('')
   const [renameDrafts, setRenameDrafts] = useState<Record<string, string>>({})
+  const backgroundSwatches = [
+    { label: 'Paper', value: '#fffdf7' },
+    { label: 'Sepia', value: '#f4eadc' },
+    { label: 'Mist', value: '#eef3f5' },
+    { label: 'Slate', value: '#1d232a' },
+  ]
+  const fallbackBackground = backgroundSwatches[0]?.value ?? '#fffdf7'
 
   useEffect(() => {
     const nextDrafts: Record<string, string> = {}
@@ -162,8 +169,78 @@ export default function ReaderControls({
           <option value="paper">Paper</option>
           <option value="sepia">Sepia</option>
           <option value="night">Night</option>
+          <option value="slate">Slate</option>
+          <option value="mist">Mist</option>
         </select>
       </label>
+      <div className="reader-background">
+        <div className="reader-background-header">
+          <h3>Background</h3>
+          <span className="muted">Override the theme if you want a custom tone.</span>
+        </div>
+        <div className="reader-background-swatches">
+          {backgroundSwatches.map((swatch) => (
+            <button
+              type="button"
+              key={swatch.value}
+              className={`reader-swatch ${
+                prefs.background === swatch.value ? 'active' : ''
+              }`}
+              style={{ background: swatch.value }}
+              onClick={() =>
+                onChange({
+                  ...prefs,
+                  background: swatch.value,
+                })
+              }
+              aria-label={`Background ${swatch.label}`}
+            />
+          ))}
+        </div>
+        <div className="reader-background-custom">
+          <input
+            type="color"
+            value={prefs.background || fallbackBackground}
+            onChange={(event) =>
+              onChange({
+                ...prefs,
+                background: event.target.value,
+              })
+            }
+            aria-label="Custom background color"
+          />
+          <button
+            type="button"
+            className="button"
+            onClick={() =>
+              onChange({
+                ...prefs,
+                background: '',
+              })
+            }
+            disabled={!prefs.background}
+          >
+            Use theme
+          </button>
+        </div>
+        <label className="field">
+          Brightness
+          <input
+            type="range"
+            min={0.8}
+            max={1.2}
+            step={0.02}
+            value={prefs.brightness}
+            onChange={(event) =>
+              onChange({
+                ...prefs,
+                brightness: clamp(Number(event.target.value), 0.8, 1.2),
+              })
+            }
+          />
+          <span className="field-value">{Math.round(prefs.brightness * 100)}%</span>
+        </label>
+      </div>
       <label className="field">
         Font
         <select
