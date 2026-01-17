@@ -1,11 +1,5 @@
 # Relite Reader Agent Instructions
 
-## Superpowers System
-
-<EXTREMELY_IMPORTANT>
-You have superpowers. Superpowers teach you new skills and capabilities. RIGHT NOW run: `~/.codex/superpowers/.codex/superpowers-codex bootstrap` and follow the instructions it returns.
-</EXTREMELY_IMPORTANT>
-
 ## Project Overview
 Relite Reader is a full-stack web reading app with user login, WebDAV-backed personal libraries, multi-format ebook reading (EPUB, PDF, MOBI, CBZ, and more), and customizable reading themes. When a user is logged in, reading progress and preferences are persisted.
 

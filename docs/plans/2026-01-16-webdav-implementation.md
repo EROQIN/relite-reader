@@ -1,7 +1,5 @@
 # WebDAV Connections & Sync Implementation Plan
 
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
-
 **Goal:** Add WebDAV connection CRUD with encrypted secrets plus manual/periodic sync hooks in the Go backend.
 
 **Architecture:** Introduce a `webdav` package with crypto helpers, an in-memory store, a client interface, and a service that handles validation and sync status updates. Add HTTP handlers with JWT auth enforcement and wire routes into the server.
