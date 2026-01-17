@@ -5,6 +5,7 @@ import EpubReader from './EpubReader'
 import PdfReader from './PdfReader'
 import TxtReader from './TxtReader'
 import MobiReader from './MobiReader'
+import PlaceholderReader from './PlaceholderReader'
 
 export default function ReaderShell({ readingSpeed }: { readingSpeed?: number }) {
   const { bookId } = useParams()
@@ -21,7 +22,16 @@ export default function ReaderShell({ readingSpeed }: { readingSpeed?: number })
       return <TxtReader item={item} readingSpeed={readingSpeed} />
     case 'mobi':
       return <MobiReader item={item} />
+    case 'cbz':
+    case 'cbr':
+    case 'cb7':
+    case 'azw':
+    case 'azw3':
+    case 'fb2':
+    case 'rtf':
+    case 'docx':
+      return <PlaceholderReader item={item} />
     default:
-      return <p className="muted">Unsupported format.</p>
+      return <PlaceholderReader item={item} />
   }
 }

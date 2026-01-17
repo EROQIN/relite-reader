@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/EROQIN/relite-reader/backend/internal/books"
+	"github.com/EROQIN/relite-reader/backend/internal/formats"
+	"github.com/EROQIN/relite-reader/backend/internal/tasks"
 )
 
 type Service struct {
@@ -13,10 +15,11 @@ type Service struct {
 	client Client
 	key    []byte
 	books  books.Store
+	queue  *tasks.Queue
 }
 
-func NewService(store Store, client Client, key []byte, booksStore books.Store) *Service {
-	return &Service{store: store, client: client, key: key, books: booksStore}
+func NewService(store Store, client Client, key []byte, booksStore books.Store, queue *tasks.Queue) *Service {
+	return &Service{store: store, client: client, key: key, books: booksStore, queue: queue}
 }
 
 func (s *Service) Create(userID, baseURL, username, secret string) (Connection, error) {
@@ -116,13 +119,26 @@ func (s *Service) upsertBookFromEntry(userID string, entry Entry) error {
 	base := path.Base(entry.Path)
 	ext := strings.ToLower(path.Ext(base))
 	title := strings.TrimSuffix(base, ext)
-	format := strings.TrimPrefix(ext, ".")
-	_, err := s.books.Upsert(userID, books.Book{
+	format, ok := formats.Detect(entry.Path)
+	if !ok {
+		format = strings.TrimPrefix(ext, ".")
+	}
+	book, err := s.books.Upsert(userID, books.Book{
 		Title:      title,
 		Format:     format,
 		SourcePath: entry.Path,
 	})
-	return err
+	if err != nil {
+		return err
+	}
+	if s.queue != nil {
+		_, _ = s.queue.Enqueue(userID, "format", map[string]string{
+			"book_id":    book.ID,
+			"format":     format,
+			"sourcePath": entry.Path,
+		})
+	}
+	return nil
 }
 
 func (s *Service) computeMissing(userID string, present map[string]struct{}) []string {

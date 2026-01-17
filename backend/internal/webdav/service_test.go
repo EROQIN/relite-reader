@@ -18,7 +18,7 @@ func (f fakeClient) List(_ string, _ string, _ string) ([]Entry, error) {
 func TestServiceCreateValidatesClient(t *testing.T) {
 	store := NewMemoryStore()
 	key, _ := ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
-	svc := NewService(store, fakeClient{err: nil}, key, nil)
+	svc := NewService(store, fakeClient{err: nil}, key, nil, nil)
 	conn, err := svc.Create("user-1", "https://dav.example.com", "reader", "secret")
 	if err != nil {
 		t.Fatalf("create: %v", err)
@@ -31,7 +31,7 @@ func TestServiceCreateValidatesClient(t *testing.T) {
 func TestServiceSyncUpdatesStatus(t *testing.T) {
 	store := NewMemoryStore()
 	key, _ := ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
-	svc := NewService(store, fakeClient{err: nil}, key, nil)
+	svc := NewService(store, fakeClient{err: nil}, key, nil, nil)
 	conn, _ := svc.Create("user-1", "https://dav.example.com", "reader", "secret")
 	if err := svc.Sync("user-1", conn.ID); err != nil {
 		t.Fatalf("sync: %v", err)
@@ -47,7 +47,7 @@ func TestServiceSyncIndexesBooks(t *testing.T) {
 	booksStore := books.NewMemoryStore()
 	key, _ := ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
 	client := fakeClient{entries: []Entry{{Path: "/library/A.epub"}, {Path: "/library/B.pdf"}}}
-	svc := NewService(store, client, key, booksStore)
+	svc := NewService(store, client, key, booksStore, nil)
 	conn, _ := svc.Create("user-1", "https://dav.example.com", "reader", "secret")
 	_, _ = booksStore.Upsert("user-1", books.Book{SourcePath: "/library/OLD.txt", Title: "OLD"})
 	if err := svc.Sync("user-1", conn.ID); err != nil {

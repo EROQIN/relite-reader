@@ -13,6 +13,7 @@ import (
 	apphttp "github.com/EROQIN/relite-reader/backend/internal/http"
 	"github.com/EROQIN/relite-reader/backend/internal/preferences"
 	"github.com/EROQIN/relite-reader/backend/internal/progress"
+	"github.com/EROQIN/relite-reader/backend/internal/tasks"
 	"github.com/EROQIN/relite-reader/backend/internal/users"
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
@@ -26,11 +27,23 @@ func main() {
 	if err != nil {
 		log.Fatal("invalid RELITE_WEB_DAV_KEY")
 	}
-	userStore := users.NewMemoryStore()
+	var userStore users.Store = users.NewMemoryStore()
+	if dsn := os.Getenv("RELITE_DATABASE_URL"); dsn != "" {
+		pgStore, err := users.NewPostgresStore(context.Background(), dsn)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := pgStore.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		defer pgStore.Close()
+		userStore = pgStore
+	}
 	authSvc := auth.NewService(userStore)
 	bookStore := books.NewMemoryStore()
 	var prefsStore preferences.Store = preferences.NewMemoryStore()
 	var progressStore progress.Store = progress.NewMemoryStore()
+	var tasksStore tasks.Store = tasks.NewMemoryStore()
 	if dataDir := os.Getenv("RELITE_DATA_DIR"); dataDir != "" {
 		path := filepath.Join(dataDir, "preferences.json")
 		if err := preferences.EnsureDir(path); err != nil {
@@ -50,10 +63,20 @@ func main() {
 			log.Fatal(err)
 		}
 		progressStore = progressFile
+		tasksPath := filepath.Join(dataDir, "tasks.json")
+		if err := tasks.EnsureDir(tasksPath); err != nil {
+			log.Fatal(err)
+		}
+		tasksFile, err := tasks.NewFileStore(tasksPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tasksStore = tasksFile
 	}
 	webStore := webdav.NewMemoryStore()
 	webClient := webdav.NewHTTPClient(http.DefaultClient)
-	webSvc := webdav.NewService(webStore, webClient, key, bookStore)
+	queue := tasks.NewQueue(tasksStore, tasks.DefaultHandler, 200)
+	webSvc := webdav.NewService(webStore, webClient, key, bookStore, queue)
 	interval := 20 * time.Minute
 	if raw := os.Getenv("RELITE_WEB_DAV_SYNC_INTERVAL"); raw != "" {
 		duration, err := time.ParseDuration(raw)
@@ -67,9 +90,10 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go webdav.NewScheduler(webSvc, ticker.C).Start(ctx)
+	queue.Start(ctx)
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore, progressStore),
+		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore, progressStore, tasksStore),
 	}
 	log.Fatal(srv.ListenAndServe())
 }

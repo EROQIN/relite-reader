@@ -12,6 +12,7 @@ import (
 	apphttp "github.com/EROQIN/relite-reader/backend/internal/http"
 	"github.com/EROQIN/relite-reader/backend/internal/preferences"
 	"github.com/EROQIN/relite-reader/backend/internal/progress"
+	"github.com/EROQIN/relite-reader/backend/internal/tasks"
 	"github.com/EROQIN/relite-reader/backend/internal/users"
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
@@ -27,9 +28,10 @@ func TestWebDAVHandlersRequireAuth(t *testing.T) {
 	bookStore := books.NewMemoryStore()
 	prefsStore := preferences.NewMemoryStore()
 	progressStore := progress.NewMemoryStore()
+	tasksStore := tasks.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
-	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore)
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt-secret"), webSvc, bookStore, prefsStore, progressStore)
+	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore, nil)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt-secret"), webSvc, bookStore, prefsStore, progressStore, tasksStore)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/webdav", nil)
 	resp := httptest.NewRecorder()
@@ -50,9 +52,10 @@ func TestWebDAVCreateAndList(t *testing.T) {
 	bookStore := books.NewMemoryStore()
 	prefsStore := preferences.NewMemoryStore()
 	progressStore := progress.NewMemoryStore()
+	tasksStore := tasks.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
-	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore)
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore, progressStore)
+	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore, nil)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore, progressStore, tasksStore)
 
 	payload := map[string]string{"base_url": "https://dav.example.com", "username": "reader", "secret": "pw"}
 	body, _ := json.Marshal(payload)

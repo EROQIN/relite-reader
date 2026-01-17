@@ -1,4 +1,17 @@
-export type BookFormat = 'epub' | 'pdf' | 'txt' | 'mobi' | 'unknown'
+export type BookFormat =
+  | 'epub'
+  | 'pdf'
+  | 'txt'
+  | 'mobi'
+  | 'cbz'
+  | 'cbr'
+  | 'cb7'
+  | 'azw'
+  | 'azw3'
+  | 'fb2'
+  | 'rtf'
+  | 'docx'
+  | 'unknown'
 
 export function detectFormat(file: File): BookFormat {
   const name = file.name.toLowerCase()
@@ -6,5 +19,13 @@ export function detectFormat(file: File): BookFormat {
   if (name.endsWith('.pdf')) return 'pdf'
   if (name.endsWith('.txt')) return 'txt'
   if (name.endsWith('.mobi')) return 'mobi'
+  if (name.endsWith('.cbz')) return 'cbz'
+  if (name.endsWith('.cbr')) return 'cbr'
+  if (name.endsWith('.cb7')) return 'cb7'
+  if (name.endsWith('.azw')) return 'azw'
+  if (name.endsWith('.azw3')) return 'azw3'
+  if (name.endsWith('.fb2')) return 'fb2'
+  if (name.endsWith('.rtf')) return 'rtf'
+  if (name.endsWith('.docx')) return 'docx'
   return 'unknown'
 }

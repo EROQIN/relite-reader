@@ -1,13 +1,14 @@
 # Relite Reader
 
-Relite Reader is a WebDAV‑backed reading app with a focused, customizable reader experience. It supports multi‑format reading (EPUB, PDF, MOBI, TXT) with per‑user preferences, progress tracking, and a mobile‑friendly PWA shell.
+Relite Reader is a WebDAV‑backed reading app with a focused, customizable reader experience. It supports multi‑format reading (EPUB, PDF, MOBI, TXT, CBZ/CBR/CB7, AZW/AZW3, FB2, RTF, DOCX) with per‑user preferences, progress tracking, and a mobile‑friendly PWA shell.
 
 ## Highlights
-- WebDAV library connections and background sync.
+- WebDAV library connections, background sync, and a lightweight task queue.
 - Reader customization: themes, fonts, font size, line height, page width, alignment, layout, focus mode.
 - Advanced options: custom backgrounds, brightness control, reading pace, time remaining, quick controls, keyboard shortcuts.
 - PWA install prompt for mobile.
 - Preferences and reading progress stored locally and optionally synced to backend when a JWT is available.
+- Supports additional formats with queued processing for renderers.
 
 ## Usage Manual
 
@@ -46,6 +47,7 @@ On mobile browsers, the app surfaces a small banner that explains how to install
 ### Backend (Go)
 Requirements:
 - Go toolchain (current LTS).
+- PostgreSQL (for user accounts).
 
 Build and run:
 ```bash
@@ -54,6 +56,7 @@ export RELITE_JWT_SECRET="your-jwt-secret"
 export RELITE_WEB_DAV_KEY="32-byte-hex-key"
 export RELITE_WEB_DAV_SYNC_INTERVAL="20m"
 export RELITE_DATA_DIR="/path/to/data"
+export RELITE_DATABASE_URL="postgres://user:pass@localhost:5432/relite?sslmode=disable"
 
 go build -o relite-server ./cmd/server
 ./relite-server
@@ -63,6 +66,8 @@ Notes:
 - `RELITE_DATA_DIR` is optional; when set, preferences persist to `preferences.json` under the directory.
 - Reading progress persists to `progress.json` when `RELITE_DATA_DIR` is set.
 - WebDAV secrets are encrypted with `RELITE_WEB_DAV_KEY` (hex‑encoded 32‑byte key).
+- Task queue state persists to `tasks.json` when `RELITE_DATA_DIR` is set.
+- Users are stored in PostgreSQL when `RELITE_DATABASE_URL` is configured (schema auto-creates).
 
 ### Frontend (Vite)
 Requirements:
@@ -141,8 +146,13 @@ Base URL: `/api`
 ### Progress
 - `GET /progress/{bookId}`
 - `PUT /progress/{bookId}`
-  - Body: `{ \"location\": 0.42 }`
+  - Body: `{ "location": 0.42 }`
+
+### Tasks
+- `GET /tasks`
+  - Returns the user's task queue entries and status.
 
 ## Project Notes
-- The backend currently uses in‑memory stores for users/books/WebDAV connections. Swap in a persistent store when integrating a database.
-- Preferences can be persisted to disk via `RELITE_DATA_DIR`.
+- Users are stored in PostgreSQL when `RELITE_DATABASE_URL` is set.
+- Books/WebDAV connections are still in memory (replace with persistent stores when ready).
+- Preferences, progress, and task queue state can be persisted to disk via `RELITE_DATA_DIR`.

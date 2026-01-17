@@ -10,6 +10,7 @@ import (
 	apphttp "github.com/EROQIN/relite-reader/backend/internal/http"
 	"github.com/EROQIN/relite-reader/backend/internal/preferences"
 	"github.com/EROQIN/relite-reader/backend/internal/progress"
+	"github.com/EROQIN/relite-reader/backend/internal/tasks"
 	"github.com/EROQIN/relite-reader/backend/internal/users"
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
@@ -20,11 +21,12 @@ func TestRouterWithBooksRoutes(t *testing.T) {
 	bookStore := books.NewMemoryStore()
 	prefsStore := preferences.NewMemoryStore()
 	progressStore := progress.NewMemoryStore()
+	tasksStore := tasks.NewMemoryStore()
 	webStore := webdav.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
-	webSvc := webdav.NewService(webStore, noopClient{}, key, bookStore)
+	webSvc := webdav.NewService(webStore, noopClient{}, key, bookStore, nil)
 
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt"), webSvc, bookStore, prefsStore, progressStore)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt"), webSvc, bookStore, prefsStore, progressStore, tasksStore)
 	req := httptest.NewRequest(http.MethodGet, "/api/books", nil)
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
