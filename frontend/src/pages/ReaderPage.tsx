@@ -48,7 +48,7 @@ export default function ReaderPage() {
   const [customPresets, setCustomPresets] = useState(() => loadCustomPresets())
   const [open, setOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
-  const token = getAuthToken()
+  const [token, setToken] = useState(() => getAuthToken())
 
   const allPresets = useMemo(
     () => [...readerPresets, ...customPresets],
@@ -162,6 +162,16 @@ export default function ReaderPage() {
       fontSize: clamp(prefs.fontSize + delta, 14, 22),
     })
   }
+
+  useEffect(() => {
+    const handler = () => setToken(getAuthToken())
+    window.addEventListener('relite-auth', handler)
+    window.addEventListener('storage', handler)
+    return () => {
+      window.removeEventListener('relite-auth', handler)
+      window.removeEventListener('storage', handler)
+    }
+  }, [])
 
   useEffect(() => {
     if (!token || bookScoped) {

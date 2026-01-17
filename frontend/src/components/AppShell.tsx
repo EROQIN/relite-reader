@@ -1,7 +1,21 @@
 import { Link, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { clearToken, getToken } from '../lib/authApi'
 import PwaInstallPrompt from './PwaInstallPrompt'
 
 export default function AppShell() {
+  const [token, setToken] = useState(() => getToken())
+
+  useEffect(() => {
+    const handler = () => setToken(getToken())
+    window.addEventListener('relite-auth', handler)
+    window.addEventListener('storage', handler)
+    return () => {
+      window.removeEventListener('relite-auth', handler)
+      window.removeEventListener('storage', handler)
+    }
+  }, [])
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -10,7 +24,13 @@ export default function AppShell() {
         </Link>
         <nav className="app-nav">
           <Link to="/">Library</Link>
-          <Link to="/login">Login</Link>
+          {token ? (
+            <button className="button" onClick={() => clearToken()}>
+              Log out
+            </button>
+          ) : (
+            <Link to="/login">Login</Link>
+          )}
         </nav>
       </header>
       <main className="app-main">

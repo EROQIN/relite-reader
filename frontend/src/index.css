@@ -73,6 +73,10 @@ a {
   background: rgba(179, 90, 47, 0.12);
 }
 
+.app-nav .button {
+  padding: 0.35rem 0.9rem;
+}
+
 .app-main {
   padding: 2rem 1.75rem 3rem;
 }
@@ -107,6 +111,60 @@ a {
   border-radius: 18px;
   box-shadow: var(--shadow);
   animation: rise 420ms ease both;
+}
+
+.form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form input {
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  background: #fffdf8;
+}
+
+.auth-panel {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.auth-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.auth-message {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.auth-message.error {
+  background: rgba(179, 90, 47, 0.12);
+  color: var(--accent);
+}
+
+.auth-message.success {
+  background: rgba(90, 148, 98, 0.12);
+  color: #2b6b3f;
+}
+
+.auth-footnote {
+  margin-top: 1rem;
+  text-align: center;
 }
 
 .library-grid {
@@ -636,6 +694,11 @@ a {
   }
 
   .pwa-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .auth-header {
     flex-direction: column;
     align-items: flex-start;
   }

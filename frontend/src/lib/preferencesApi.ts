@@ -1,10 +1,5 @@
 import { ReaderPrefs } from './readerPrefs'
-
-const TOKEN_KEY = 'relite.auth.token'
-
-export function getAuthToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY)
-}
+import { getToken } from './authApi'
 
 export async function fetchPreferences(token: string): Promise<ReaderPrefs | null> {
   try {
@@ -34,4 +29,8 @@ export async function savePreferences(token: string, prefs: ReaderPrefs) {
   } catch {
     // best-effort sync
   }
+}
+
+export function getAuthToken(): string | null {
+  return getToken()
 }
