@@ -1,28 +1,141 @@
-# Prompt 工程项目骨架
+# Relite Reader
 
-以“提示工程即软件工程”为范式，为后续开发提供可迭代、可评测的结构化起点。
+Relite Reader is a WebDAV‑backed reading app with a focused, customizable reader experience. It supports multi‑format reading (EPUB, PDF, MOBI, TXT) with per‑user preferences, progress tracking, and a mobile‑friendly PWA shell.
 
-## 目录结构
-- `prompts/`：系统级、开发者级和示例提示。
-- `templates/`：常用提示模板，便于复用和定制。
-- `docs/`：工作流与评测方法的文字说明。
+## Highlights
+- WebDAV library connections and background sync.
+- Reader customization: themes, fonts, font size, line height, page width, alignment, layout, focus mode.
+- Advanced options: custom backgrounds, brightness control, reading pace, time remaining, quick controls, keyboard shortcuts.
+- PWA install prompt for mobile.
+- Preferences stored locally and optionally synced to backend when a JWT is available.
 
-## 快速开始
-1. 在 `prompts/system.md` 设定系统/安全约束与输出格式。
-2. 在 `prompts/developer.md` 写明团队约定、风格和禁止事项。
-3. 依据目标，在 `templates/prompt-template.md` 填充上下文、输入、约束与期望输出。
-4. 将具体场景样例追加到 `prompts/user-examples.md`，便于对齐和回归。
-5. 按 `docs/workflow.md` 的迭代步骤进行评测和优化。
+## Usage Manual
 
-## 开发与评测思路
-- 角色清晰：区分系统、开发者、用户指令，避免冲突。
-- 结构优先：用分节、要点和显式格式（JSON/表格/要点）约束输出。
-- 约束显式：限制语气、风格、长度、保密与合规要求。
-- 示例驱动：用正/反例展示边界；按场景分桶管理。
-- 评测闭环：为关键路径设计回归用例，记录期望输出与偏差。
-- 可迁移性：模板参数化，便于在不同模型或渠道复用。
+### 1) Sign in / Register
+The backend exposes JWT auth endpoints. The current UI provides a basic login form without wiring; integrate the token into your auth flow and store it in local storage under `relite.auth.token` to enable preference sync.
 
-## 后续可扩展
-- 增加自动评测脚本，覆盖关键场景。
-- 将提示版本与变更记录写入 `docs/`。
-- 持续补充高质量示例，形成数据集。
+### 2) Connect WebDAV
+Use the WebDAV API to create a connection:
+- Base URL
+- Username
+- Password (stored encrypted at rest on the server)
+
+Then trigger a sync to index your library.
+
+### 3) Browse and Open Books
+- The library view lists books indexed from WebDAV.
+- Click a book to open the reader.
+
+### 4) Customize the Reader
+Inside the reader settings panel you can:
+- Apply presets or save your own presets.
+- Change theme, font, size, line height, page width, alignment, layout.
+- Adjust reading pace (used for time remaining in TXT).
+- Set a custom background color or brightness.
+
+Quick actions:
+- Theme cycle, layout toggle, focus mode, and font size controls in the floating quick bar.
+- Keyboard shortcuts (press `?` in the reader to see all shortcuts).
+
+### 5) Install as Web App
+On mobile browsers, the app surfaces a small banner that explains how to install the PWA. Once installed, Relite Reader opens in a standalone app shell.
+
+## Deployment Manual
+
+### Backend (Go)
+Requirements:
+- Go toolchain (current LTS).
+
+Build and run:
+```bash
+cd backend
+export RELITE_JWT_SECRET="your-jwt-secret"
+export RELITE_WEB_DAV_KEY="32-byte-hex-key"
+export RELITE_WEB_DAV_SYNC_INTERVAL="20m"
+export RELITE_DATA_DIR="/path/to/data"
+
+go build -o relite-server ./cmd/server
+./relite-server
+```
+
+Notes:
+- `RELITE_DATA_DIR` is optional; when set, preferences persist to `preferences.json` under the directory.
+- WebDAV secrets are encrypted with `RELITE_WEB_DAV_KEY` (hex‑encoded 32‑byte key).
+
+### Frontend (Vite)
+Requirements:
+- Node.js LTS.
+
+Build:
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+During development:
+```bash
+npm run dev
+```
+
+### Test Commands
+```bash
+cd backend
+GOCACHE=.cache/go-build go test ./...
+
+cd frontend
+npm test -- --run
+```
+
+## API Summary
+
+Base URL: `/api`
+
+### Health
+- `GET /health` → `{ "status": "ok" }`
+
+### Auth
+- `POST /auth/register`
+  - Body: `{ "email": "user@example.com", "password": "secret" }`
+- `POST /auth/login`
+  - Body: `{ "email": "user@example.com", "password": "secret" }`
+  - Returns: `{ "token": "..." }`
+
+### WebDAV
+- `GET /webdav`
+- `POST /webdav`
+  - Body: `{ "base_url": "https://dav.example.com", "username": "reader", "secret": "pw" }`
+- `PUT /webdav/{id}`
+  - Body: `{ "base_url": "...", "username": "...", "secret": "..." }`
+- `DELETE /webdav/{id}`
+- `POST /webdav/{id}/sync`
+
+### Books
+- `GET /books`
+  - Returns indexed books with `missing` flag.
+
+### Preferences
+- `GET /preferences`
+- `PUT /preferences`
+  - Body:
+    ```json
+    {
+      "reader": {
+        "theme": "paper",
+        "font": "serif",
+        "fontSize": 18,
+        "lineHeight": 1.7,
+        "pageWidth": 720,
+        "textAlign": "left",
+        "layoutMode": "single",
+        "focusMode": false,
+        "readingSpeed": 240,
+        "background": "#fffdf7",
+        "brightness": 1.0
+      }
+    }
+    ```
+
+## Project Notes
+- The backend currently uses in‑memory stores for users/books/WebDAV connections. Swap in a persistent store when integrating a database.
+- Preferences can be persisted to disk via `RELITE_DATA_DIR`.
