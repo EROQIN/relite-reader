@@ -24,6 +24,7 @@ export default function AppShell() {
         </Link>
         <nav className="app-nav">
           <Link to="/">Library</Link>
+          <Link to="/webdav">WebDAV</Link>
           {token ? (
             <button className="button" onClick={() => clearToken()}>
               Log out

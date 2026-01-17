@@ -243,6 +243,42 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+.webdav-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.webdav-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.webdav-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #fffdf8;
+  margin-top: 1rem;
+}
+
+.webdav-card strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.webdav-hint {
+  margin-top: 1rem;
+}
+
+.webdav-error {
+  margin-top: 0.5rem;
+  color: var(--accent);
+}
+
 .book-list {
   list-style: none;
   padding: 0;
@@ -276,6 +312,22 @@ a {
   color: var(--accent);
   font-size: 0.75rem;
   margin-left: 0.5rem;
+}
+
+.status-success {
+  background: rgba(90, 148, 98, 0.18);
+  color: #2b6b3f;
+}
+
+.status-error {
+  background: rgba(179, 90, 47, 0.16);
+  color: var(--accent);
+}
+
+.status-never,
+.status-idle {
+  background: rgba(91, 84, 76, 0.12);
+  color: var(--ink-soft);
 }
 
 .reader-text {
