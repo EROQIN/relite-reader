@@ -199,9 +199,11 @@ a {
 
 .reader-text {
   white-space: pre-wrap;
-  line-height: 1.7;
-  font-size: 1rem;
-  color: var(--ink);
+  line-height: var(--reader-line, 1.7);
+  font-size: var(--reader-size, 1rem);
+  color: var(--reader-ink, var(--ink));
+  font-family: var(--reader-font, inherit);
+  text-align: var(--reader-align, left);
   margin-top: 1rem;
 }
 
@@ -222,6 +224,104 @@ a {
   overflow: auto;
 }
 
+.reader-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.reader-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+
+.reader-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.reader-surface {
+  max-width: var(--reader-width, 720px);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.reader-frame {
+  background: var(--reader-bg, #fffdf7);
+  border: 1px solid var(--reader-border, #e6ded4);
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.reader-settings {
+  position: sticky;
+  top: 1rem;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.reader-settings:not(.open) {
+  transform: translateY(-8px);
+  opacity: 0.5;
+}
+
+.reader-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.reader-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.field input[type='range'],
+.field select {
+  width: 100%;
+}
+
+.field-value {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+
+.reader-page[data-theme='paper'] {
+  --reader-bg: #fffdf7;
+  --reader-ink: #1b1916;
+  --reader-border: #e6ded4;
+}
+
+.reader-page[data-theme='sepia'] {
+  --reader-bg: #f4eadc;
+  --reader-ink: #2c251d;
+  --reader-border: #d9c8b5;
+}
+
+.reader-page[data-theme='night'] {
+  --reader-bg: #141313;
+  --reader-ink: #f4efe7;
+  --reader-border: #2b2520;
+}
+
+.reader-page[data-theme='night'] .reader-frame {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.reader-page[data-theme='night'] .reader-progress {
+  color: var(--reader-ink);
+}
+
 .timestamp {
   display: block;
   font-size: 0.75rem;
@@ -239,6 +339,16 @@ a {
   .hero {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 960px) {
+  .reader-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .reader-settings {
+    position: static;
   }
 }
 
