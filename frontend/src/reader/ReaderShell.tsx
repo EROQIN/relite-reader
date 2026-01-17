@@ -6,12 +6,14 @@ import PdfReader from './PdfReader'
 import TxtReader from './TxtReader'
 import MobiReader from './MobiReader'
 import PlaceholderReader from './PlaceholderReader'
+import { useI18n } from '../components/I18nProvider'
 
 export default function ReaderShell({ readingSpeed }: { readingSpeed?: number }) {
   const { bookId } = useParams()
   const item = useMemo(() => loadLibrary().find((i) => i.id === bookId), [bookId])
+  const { t } = useI18n()
 
-  if (!item) return <p className="muted">Book not found.</p>
+  if (!item) return <p className="muted">{t('reader.shell.notFound')}</p>
 
   switch (item.format) {
     case 'epub':

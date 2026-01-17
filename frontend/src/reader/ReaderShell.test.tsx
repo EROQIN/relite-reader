@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { I18nProvider } from '../components/I18nProvider'
 import ReaderShell from './ReaderShell'
 
 vi.mock('react-router-dom', () => ({
@@ -10,6 +11,11 @@ vi.mock('../lib/library', () => ({
 }))
 
 test('shows not found for missing book', () => {
-  render(<ReaderShell />)
-  expect(screen.getByText('Book not found.')).toBeInTheDocument()
+  localStorage.setItem('relite.locale', 'zh-CN')
+  render(
+    <I18nProvider>
+      <ReaderShell />
+    </I18nProvider>
+  )
+  expect(screen.getByText('未找到图书。')).toBeInTheDocument()
 })
