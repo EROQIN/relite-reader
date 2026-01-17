@@ -16,7 +16,7 @@ export default function TxtReader({ item }: { item: LibraryItem }) {
   }
 
   return (
-    <div className="panel">
+    <div className="reader-frame">
       <div className="reader-meta">
         <h2>{item.title}</h2>
         <span className="reader-progress">{Math.round(progress * 100)}%</span>
