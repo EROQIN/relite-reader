@@ -51,7 +51,7 @@ export default function ReaderPage() {
   const [open, setOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [token, setToken] = useState(() => getAuthToken())
-  const { locale, setLocale } = useI18n()
+  const { locale, setLocale, t } = useI18n()
 
   const allPresets = useMemo(
     () => [...readerPresets, ...customPresets],
@@ -257,19 +257,19 @@ export default function ReaderPage() {
     >
       <header className="reader-toolbar">
         <div>
-          <span className="overline">Reader</span>
-          <h1>Reading Studio</h1>
+          <span className="overline">{t('reader.page.overline')}</span>
+          <h1>{t('reader.page.title')}</h1>
         </div>
         <div className="reader-actions">
           <button className="button" onClick={() => setShowShortcuts(true)}>
-            Shortcuts
+            {t('reader.page.shortcuts')}
           </button>
           <button
             className="button"
             onClick={() => setOpen((prev) => !prev)}
             aria-expanded={open}
           >
-            Settings
+            {t('reader.page.settings')}
           </button>
         </div>
       </header>
@@ -299,7 +299,7 @@ export default function ReaderPage() {
           className="button reader-focus-exit"
           onClick={() => updatePrefs({ ...prefs, focusMode: false })}
         >
-          Exit focus
+          {t('reader.page.exitFocus')}
         </button>
       )}
       <ReaderQuickControls
