@@ -19,6 +19,8 @@ import {
   clearReaderPrefsForBook,
 } from '../lib/readerPrefs'
 import { fetchPreferences, getAuthToken, savePreferences } from '../lib/preferencesApi'
+import { normalizeLocale } from '../lib/i18n'
+import { useI18n } from '../components/I18nProvider'
 
 const fontMap: Record<ReaderPrefs['font'], string> = {
   sans: "'IBM Plex Sans', 'Noto Sans SC', 'PingFang SC', sans-serif",
@@ -49,6 +51,7 @@ export default function ReaderPage() {
   const [open, setOpen] = useState(true)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [token, setToken] = useState(() => getAuthToken())
+  const { locale, setLocale } = useI18n()
 
   const allPresets = useMemo(
     () => [...readerPresets, ...customPresets],
@@ -180,21 +183,25 @@ export default function ReaderPage() {
     let active = true
     void fetchPreferences(token).then((remote) => {
       if (!active || !remote) return
-      setPrefs(remote)
-      saveReaderPrefs(remote)
+      setPrefs(remote.reader)
+      saveReaderPrefs(remote.reader)
+      const nextLocale = normalizeLocale(remote.locale)
+      if (nextLocale !== locale) {
+        setLocale(nextLocale)
+      }
     })
     return () => {
       active = false
     }
-  }, [token, bookScoped])
+  }, [token, bookScoped, locale, setLocale])
 
   useEffect(() => {
     if (!token || bookScoped) return
     const handle = window.setTimeout(() => {
-      void savePreferences(token, prefs)
+      void savePreferences(token, { locale, reader: prefs })
     }, 400)
     return () => window.clearTimeout(handle)
-  }, [token, prefs, bookScoped])
+  }, [token, prefs, bookScoped, locale])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {

@@ -1,7 +1,7 @@
-import { ReaderPrefs } from './readerPrefs'
 import { getToken } from './authApi'
+import { UserPreferences } from './userPreferences'
 
-export async function fetchPreferences(token: string): Promise<ReaderPrefs | null> {
+export async function fetchPreferences(token: string): Promise<UserPreferences | null> {
   try {
     const resp = await fetch('/api/preferences', {
       headers: {
@@ -9,14 +9,18 @@ export async function fetchPreferences(token: string): Promise<ReaderPrefs | nul
       },
     })
     if (!resp.ok) return null
-    const data = (await resp.json()) as { reader?: ReaderPrefs }
-    return data.reader ?? null
+    const data = (await resp.json()) as Partial<UserPreferences>
+    if (!data.reader) return null
+    return {
+      locale: data.locale ?? 'en',
+      reader: data.reader,
+    }
   } catch {
     return null
   }
 }
 
-export async function savePreferences(token: string, prefs: ReaderPrefs) {
+export async function savePreferences(token: string, prefs: UserPreferences) {
   try {
     await fetch('/api/preferences', {
       method: 'PUT',
@@ -24,7 +28,7 @@ export async function savePreferences(token: string, prefs: ReaderPrefs) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ reader: prefs }),
+      body: JSON.stringify(prefs),
     })
   } catch {
     // best-effort sync
