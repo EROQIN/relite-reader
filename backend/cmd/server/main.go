@@ -27,7 +27,8 @@ func main() {
 	authSvc := auth.NewService(userStore)
 	bookStore := books.NewMemoryStore()
 	webStore := webdav.NewMemoryStore()
-	webSvc := webdav.NewService(webStore, webdav.NoopClient{}, key, bookStore)
+	webClient := webdav.NewHTTPClient(http.DefaultClient)
+	webSvc := webdav.NewService(webStore, webClient, key, bookStore)
 	interval := 20 * time.Minute
 	if raw := os.Getenv("RELITE_WEB_DAV_SYNC_INTERVAL"); raw != "" {
 		duration, err := time.ParseDuration(raw)
