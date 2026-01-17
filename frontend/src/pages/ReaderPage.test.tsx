@@ -37,7 +37,11 @@ vi.mock('../lib/readerPrefs', () => ({
   readerPresets: [{ id: 'paper', label: 'Paper Focus', prefs: { theme: 'paper' } }],
 }))
 
-test('renders focus mode label', () => {
+vi.mock('../reader/ReaderQuickControls', () => ({
+  default: () => <div>Quick</div>,
+}))
+
+test('renders quick controls', () => {
   render(<ReaderPage />)
-  expect(screen.getByText(/focus mode/i)).toBeInTheDocument()
+  expect(screen.getByText('Quick')).toBeInTheDocument()
 })

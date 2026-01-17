@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import ReaderShell from '../reader/ReaderShell'
 import ReaderControls from '../reader/ReaderControls'
+import ReaderQuickControls from '../reader/ReaderQuickControls'
 import {
   defaultReaderPrefs,
   loadReaderPrefs,
@@ -18,6 +19,11 @@ const fontMap: Record<ReaderPrefs['font'], string> = {
   serif: "'Fraunces', 'Noto Serif SC', 'Source Han Serif SC', serif",
   mono: "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
 }
+
+const themes: ReaderPrefs['theme'][] = ['paper', 'sepia', 'night']
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value))
 
 const matchPreset = (prefs: ReaderPrefs) => {
   const found = readerPresets.find(
@@ -74,6 +80,65 @@ export default function ReaderPage() {
     }
   }
 
+  const cycleTheme = () => {
+    const index = themes.indexOf(prefs.theme)
+    const nextTheme = themes[(index + 1) % themes.length]
+    updatePrefs({ ...prefs, theme: nextTheme })
+  }
+
+  const toggleLayout = () => {
+    updatePrefs({
+      ...prefs,
+      layoutMode: prefs.layoutMode === 'single' ? 'columns' : 'single',
+    })
+  }
+
+  const toggleFocus = () => {
+    updatePrefs({ ...prefs, focusMode: !prefs.focusMode })
+  }
+
+  const adjustFont = (delta: number) => {
+    updatePrefs({
+      ...prefs,
+      fontSize: clamp(prefs.fontSize + delta, 14, 22),
+    })
+  }
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+        return
+      }
+      if (event.altKey && event.key.toLowerCase() === 't') {
+        event.preventDefault()
+        cycleTheme()
+      }
+      if (event.altKey && event.key.toLowerCase() === 'l') {
+        event.preventDefault()
+        toggleLayout()
+      }
+      if (event.altKey && event.key.toLowerCase() === 'f') {
+        event.preventDefault()
+        toggleFocus()
+      }
+      if (event.altKey && event.key.toLowerCase() === 's') {
+        event.preventDefault()
+        setOpen((prev) => !prev)
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key === '+') {
+        event.preventDefault()
+        adjustFont(1)
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key === '-') {
+        event.preventDefault()
+        adjustFont(-1)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  })
+
   return (
     <section
       className={`reader-page ${
@@ -120,6 +185,14 @@ export default function ReaderPage() {
           Exit focus
         </button>
       )}
+      <ReaderQuickControls
+        onTheme={cycleTheme}
+        onIncrease={() => adjustFont(1)}
+        onDecrease={() => adjustFont(-1)}
+        onLayout={toggleLayout}
+        onFocus={toggleFocus}
+        onSettings={() => setOpen((prev) => !prev)}
+      />
     </section>
   )
 }
