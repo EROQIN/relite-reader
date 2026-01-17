@@ -2,6 +2,8 @@ package webdav
 
 import (
 	"errors"
+	"path"
+	"strings"
 
 	"github.com/EROQIN/relite-reader/backend/internal/books"
 )
@@ -75,10 +77,67 @@ func (s *Service) Sync(userID, id string) error {
 		_, _ = s.store.UpdateSyncStatus(userID, id, "error", "decrypt failed")
 		return err
 	}
-	if _, err := s.client.List(conn.BaseURL, conn.Username, secret); err != nil {
+	entries, err := s.client.List(conn.BaseURL, conn.Username, secret)
+	if err != nil {
 		_, _ = s.store.UpdateSyncStatus(userID, id, "error", "sync failed")
 		return err
 	}
+	if s.books != nil {
+		present := make(map[string]struct{})
+		for _, entry := range entries {
+			present[entry.Path] = struct{}{}
+			_ = s.upsertBookFromEntry(userID, entry)
+		}
+		missing := s.computeMissing(userID, present)
+		_ = s.books.MarkMissing(userID, missing)
+	}
 	_, err = s.store.UpdateSyncStatus(userID, id, "success", "")
 	return err
+}
+
+func (s *Service) SyncAll() error {
+	conns, err := s.store.ListAll()
+	if err != nil {
+		return err
+	}
+	var lastErr error
+	for _, conn := range conns {
+		if err := s.Sync(conn.UserID, conn.ID); err != nil {
+			lastErr = err
+		}
+	}
+	return lastErr
+}
+
+func (s *Service) upsertBookFromEntry(userID string, entry Entry) error {
+	if s.books == nil {
+		return nil
+	}
+	base := path.Base(entry.Path)
+	ext := strings.ToLower(path.Ext(base))
+	title := strings.TrimSuffix(base, ext)
+	format := strings.TrimPrefix(ext, ".")
+	_, err := s.books.Upsert(userID, books.Book{
+		Title:      title,
+		Format:     format,
+		SourcePath: entry.Path,
+	})
+	return err
+}
+
+func (s *Service) computeMissing(userID string, present map[string]struct{}) []string {
+	if s.books == nil {
+		return nil
+	}
+	list, err := s.books.ListByUser(userID)
+	if err != nil {
+		return nil
+	}
+	var missing []string
+	for _, book := range list {
+		if _, ok := present[book.SourcePath]; !ok {
+			missing = append(missing, book.SourcePath)
+		}
+	}
+	return missing
 }
