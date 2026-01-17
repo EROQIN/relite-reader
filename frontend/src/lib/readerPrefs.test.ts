@@ -35,3 +35,10 @@ test('book prefs override is stored and cleared', () => {
   clearReaderPrefsForBook(bookId)
   expect(loadReaderPrefsForBook(bookId)).toBeNull()
 })
+
+test('reader prefs include layout and focus fields', () => {
+  const prefs = loadReaderPrefs()
+  expect(prefs.layoutMode).toBeDefined()
+  expect(prefs.focusMode).toBeDefined()
+  expect(defaultReaderPrefs.layoutMode).toBe('single')
+})

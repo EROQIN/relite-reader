@@ -5,6 +5,7 @@ const BOOK_PREFS_KEY = 'relite.prefs.books'
 export type ReaderTheme = 'paper' | 'sepia' | 'night'
 export type ReaderFont = 'sans' | 'serif' | 'mono'
 export type ReaderAlign = 'left' | 'justify'
+export type ReaderLayoutMode = 'single' | 'columns'
 
 export interface ReaderPrefs {
   theme: ReaderTheme
@@ -13,6 +14,8 @@ export interface ReaderPrefs {
   lineHeight: number
   pageWidth: number
   textAlign: ReaderAlign
+  layoutMode: ReaderLayoutMode
+  focusMode: boolean
 }
 
 export interface ReaderPreset {
@@ -28,6 +31,8 @@ export const defaultReaderPrefs: ReaderPrefs = {
   lineHeight: 1.7,
   pageWidth: 720,
   textAlign: 'left',
+  layoutMode: 'single',
+  focusMode: false,
 }
 
 export const readerPresets: ReaderPreset[] = [
