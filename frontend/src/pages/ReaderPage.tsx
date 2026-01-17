@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import ReaderShell from '../reader/ReaderShell'
 import ReaderControls from '../reader/ReaderControls'
 import ReaderQuickControls from '../reader/ReaderQuickControls'
+import ReaderShortcuts from '../reader/ReaderShortcuts'
 import {
   defaultReaderPrefs,
   createCustomPreset,
@@ -45,6 +46,7 @@ export default function ReaderPage() {
   )
   const [customPresets, setCustomPresets] = useState(() => loadCustomPresets())
   const [open, setOpen] = useState(true)
+  const [showShortcuts, setShowShortcuts] = useState(false)
 
   const allPresets = useMemo(
     () => [...readerPresets, ...customPresets],
@@ -157,9 +159,18 @@ export default function ReaderPage() {
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showShortcuts) {
+        event.preventDefault()
+        setShowShortcuts(false)
+        return
+      }
       const target = event.target as HTMLElement | null
       if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
         return
+      }
+      if (event.key === '?') {
+        event.preventDefault()
+        setShowShortcuts((prev) => !prev)
       }
       if (event.altKey && event.key.toLowerCase() === 't') {
         event.preventDefault()
@@ -203,13 +214,18 @@ export default function ReaderPage() {
           <span className="overline">Reader</span>
           <h1>Reading Studio</h1>
         </div>
-        <button
-          className="button"
-          onClick={() => setOpen((prev) => !prev)}
-          aria-expanded={open}
-        >
-          Settings
-        </button>
+        <div className="reader-actions">
+          <button className="button" onClick={() => setShowShortcuts(true)}>
+            Shortcuts
+          </button>
+          <button
+            className="button"
+            onClick={() => setOpen((prev) => !prev)}
+            aria-expanded={open}
+          >
+            Settings
+          </button>
+        </div>
       </header>
       <div className="reader-layout">
         <div className="reader-surface">
@@ -247,6 +263,10 @@ export default function ReaderPage() {
         onLayout={toggleLayout}
         onFocus={toggleFocus}
         onSettings={() => setOpen((prev) => !prev)}
+      />
+      <ReaderShortcuts
+        open={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
       />
     </section>
   )
