@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { I18nProvider } from '../components/I18nProvider'
 import WebDavPage from './WebDavPage'
 
 vi.mock('../lib/authApi', () => ({
@@ -15,12 +16,13 @@ vi.mock('../lib/webdavApi', () => ({
 }))
 
 test('requires login when missing token', () => {
+  localStorage.setItem('relite.locale', 'zh-CN')
   render(
-    <MemoryRouter>
-      <WebDavPage />
-    </MemoryRouter>
+    <I18nProvider>
+      <MemoryRouter>
+        <WebDavPage />
+      </MemoryRouter>
+    </I18nProvider>
   )
-  expect(
-    screen.getByText('Sign in to manage your WebDAV connections.')
-  ).toBeInTheDocument()
+  expect(screen.getByText('请登录以管理 WebDAV 连接。')).toBeInTheDocument()
 })

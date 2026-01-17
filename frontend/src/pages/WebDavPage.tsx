@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getToken } from '../lib/authApi'
+import { useI18n } from '../components/I18nProvider'
 import {
   createConnection,
   deleteConnection,
@@ -24,11 +25,18 @@ export default function WebDavPage() {
   const [message, setMessage] = useState('')
   const [form, setForm] = useState<WebDavPayload>(emptyForm)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const { t } = useI18n()
 
   const canSubmit = useMemo(
     () => Boolean(form.base_url && form.username && form.secret),
     [form]
   )
+
+  const statusLabel = (value: string) => {
+    const key = `webdav.status.${value}`
+    const translated = t(key)
+    return translated === key ? value : translated
+  }
 
   useEffect(() => {
     const handler = () => setToken(getToken())
@@ -49,7 +57,7 @@ export default function WebDavPage() {
       setStatus('idle')
     } catch {
       setStatus('error')
-      setMessage('Unable to load WebDAV connections.')
+      setMessage(t('webdav.message.loadError'))
     }
   }
 
@@ -60,10 +68,10 @@ export default function WebDavPage() {
   if (!token) {
     return (
       <section className="panel">
-        <h1>WebDAV Library</h1>
-        <p className="muted">Sign in to manage your WebDAV connections.</p>
+        <h1>{t('webdav.title')}</h1>
+        <p className="muted">{t('webdav.signin.helper')}</p>
         <Link to="/login" className="button">
-          Go to login
+          {t('webdav.signin.cta')}
         </Link>
       </section>
     )
@@ -84,7 +92,7 @@ export default function WebDavPage() {
       await refresh()
     } catch {
       setStatus('error')
-      setMessage('Unable to save connection. Please check the details.')
+      setMessage(t('webdav.message.saveError'))
     }
   }
 
@@ -104,7 +112,7 @@ export default function WebDavPage() {
       await refresh()
     } catch {
       setStatus('error')
-      setMessage('Unable to remove this connection.')
+      setMessage(t('webdav.message.removeError'))
     }
   }
 
@@ -112,10 +120,10 @@ export default function WebDavPage() {
     setMessage('')
     try {
       await syncConnection(id, token)
-      setMessage('Sync started. Refresh in a moment to see updates.')
+      setMessage(t('webdav.message.syncStart'))
     } catch {
       setStatus('error')
-      setMessage('Unable to start sync.')
+      setMessage(t('webdav.message.syncError'))
     }
   }
 
@@ -123,26 +131,24 @@ export default function WebDavPage() {
     <section className="webdav-page">
       <header className="section-header">
         <div>
-          <span className="overline">Storage</span>
-          <h1>WebDAV Library</h1>
-          <p className="muted">
-            Add your WebDAV server to index and stream your library.
-          </p>
+          <span className="overline">{t('webdav.overline')}</span>
+          <h1>{t('webdav.title')}</h1>
+          <p className="muted">{t('webdav.subtitle')}</p>
         </div>
         <button className="button" onClick={refresh}>
-          Refresh
+          {t('webdav.refresh')}
         </button>
       </header>
 
       <div className="webdav-grid">
         <div className="panel">
-          <h2>{editingId ? 'Edit connection' : 'Add connection'}</h2>
+          <h2>{editingId ? t('webdav.form.edit') : t('webdav.form.add')}</h2>
           <form className="form" onSubmit={handleSubmit}>
             <label>
-              Base URL
+              {t('webdav.form.baseUrl')}
               <input
                 type="url"
-                placeholder="https://dav.example.com/remote.php/dav/files/user"
+                placeholder={t('webdav.form.baseUrl.placeholder')}
                 value={form.base_url}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, base_url: event.target.value }))
@@ -151,10 +157,10 @@ export default function WebDavPage() {
               />
             </label>
             <label>
-              Username
+              {t('webdav.form.username')}
               <input
                 type="text"
-                placeholder="user"
+                placeholder={t('webdav.form.username.placeholder')}
                 value={form.username}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, username: event.target.value }))
@@ -163,10 +169,10 @@ export default function WebDavPage() {
               />
             </label>
             <label>
-              Password / app token
+              {t('webdav.form.secret')}
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder={t('webdav.form.secret.placeholder')}
                 value={form.secret}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, secret: event.target.value }))
@@ -175,7 +181,7 @@ export default function WebDavPage() {
               />
             </label>
             <button className="button" type="submit" disabled={!canSubmit}>
-              {editingId ? 'Update connection' : 'Save connection'}
+              {editingId ? t('webdav.form.update') : t('webdav.form.save')}
             </button>
             {editingId && (
               <button
@@ -186,20 +192,20 @@ export default function WebDavPage() {
                   setForm(emptyForm)
                 }}
               >
-                Cancel edit
+                {t('webdav.form.cancel')}
               </button>
             )}
           </form>
           <p className="muted webdav-hint">
-            Tip: Some providers require an app-specific password.
+            {t('webdav.form.tip')}
           </p>
         </div>
 
         <div className="panel">
-          <h2>Connections</h2>
-          {status === 'loading' && <p className="muted">Loading...</p>}
+          <h2>{t('webdav.list.title')}</h2>
+          {status === 'loading' && <p className="muted">{t('webdav.list.loading')}</p>}
           {items.length === 0 && status !== 'loading' && (
-            <p className="muted">No connections yet. Add one to get started.</p>
+            <p className="muted">{t('webdav.list.empty')}</p>
           )}
           {items.map((item) => (
             <div className="webdav-card" key={item.id}>
@@ -207,7 +213,7 @@ export default function WebDavPage() {
                 <strong>{item.base_url}</strong>
                 <p className="muted">{item.username}</p>
                 <span className={`chip status-${item.last_sync_status || 'idle'}`}>
-                  {item.last_sync_status || 'idle'}
+                  {statusLabel(item.last_sync_status || 'idle')}
                 </span>
                 {item.last_error && (
                   <p className="muted webdav-error">{item.last_error}</p>
@@ -215,13 +221,13 @@ export default function WebDavPage() {
               </div>
               <div className="row-actions">
                 <button className="button" onClick={() => handleSync(item.id)}>
-                  Sync
+                  {t('webdav.action.sync')}
                 </button>
                 <button className="button" onClick={() => startEdit(item)}>
-                  Edit
+                  {t('webdav.action.edit')}
                 </button>
                 <button className="button" onClick={() => handleDelete(item.id)}>
-                  Remove
+                  {t('webdav.action.remove')}
                 </button>
               </div>
             </div>
