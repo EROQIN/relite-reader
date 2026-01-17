@@ -7,6 +7,7 @@ Relite Reader is a WebDAV‑backed reading app with a focused, customizable read
 - Reader customization: themes, fonts, font size, line height, page width, alignment, layout, focus mode.
 - Advanced options: custom backgrounds, brightness control, reading pace, time remaining, quick controls, keyboard shortcuts.
 - PWA install prompt for mobile.
+- UI localization with automatic language detection and manual switching (English + Simplified Chinese).
 - Preferences and reading progress stored locally and optionally synced to backend when a JWT is available.
 - Supports additional formats with queued processing for renderers.
 
@@ -34,6 +35,9 @@ Inside the reader settings panel you can:
 - Adjust reading pace (used for time remaining in TXT).
 - Set a custom background color or brightness.
 Progress automatically syncs to the backend when signed in.
+
+### 4.5) Language
+Relite Reader auto-detects browser language on first load and lets you switch languages from the header. The selected locale is stored locally and synced to the server when signed in.
 
 Quick actions:
 - Theme cycle, layout toggle, focus mode, and font size controls in the floating quick bar.
@@ -127,6 +131,7 @@ Base URL: `/api`
   - Body:
     ```json
     {
+      "locale": "en",
       "reader": {
         "theme": "paper",
         "font": "serif",
@@ -156,3 +161,4 @@ Base URL: `/api`
 - Users are stored in PostgreSQL when `RELITE_DATABASE_URL` is set.
 - Books/WebDAV connections are still in memory (replace with persistent stores when ready).
 - Preferences, progress, and task queue state can be persisted to disk via `RELITE_DATA_DIR`.
+- Locale is stored alongside preferences and is sent as `locale` in the preferences payload.
