@@ -1,8 +1,10 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { LibraryItem } from '../lib/library'
 import { calcProgress } from '../lib/progress'
 import { loadProgress, saveProgress } from '../lib/progressStore'
 import { loadText } from '../lib/textStore'
+import { fetchProgress, saveProgressRemote } from '../lib/progressApi'
+import { getToken } from '../lib/authApi'
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
@@ -17,6 +19,7 @@ export default function TxtReader({
   const text = loadText(item.id)
   const [progress, setProgress] = useState(() => loadProgress(item.id))
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [token, setToken] = useState(() => getToken())
 
   const wordCount = useMemo(() => {
     if (!text) return 0
@@ -39,6 +42,40 @@ export default function TxtReader({
     setProgress(next)
     saveProgress(item.id, next)
   }
+
+  useEffect(() => {
+    const handler = () => setToken(getToken())
+    window.addEventListener('relite-auth', handler)
+    window.addEventListener('storage', handler)
+    return () => {
+      window.removeEventListener('relite-auth', handler)
+      window.removeEventListener('storage', handler)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!token) return
+    let active = true
+    void fetchProgress(item.id, token).then((remote) => {
+      if (!active || !remote) return
+      const next = Math.max(progress, remote.location)
+      if (next !== progress) {
+        setProgress(next)
+        saveProgress(item.id, next)
+      }
+    })
+    return () => {
+      active = false
+    }
+  }, [token, item.id])
+
+  useEffect(() => {
+    if (!token) return
+    const handle = window.setTimeout(() => {
+      void saveProgressRemote(item.id, progress, token)
+    }, 600)
+    return () => window.clearTimeout(handle)
+  }, [token, item.id, progress])
 
   const onScrub = (event: React.ChangeEvent<HTMLInputElement>) => {
     const next = clamp(Number(event.target.value) / 100, 0, 1)

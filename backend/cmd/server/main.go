@@ -12,6 +12,7 @@ import (
 	"github.com/EROQIN/relite-reader/backend/internal/books"
 	apphttp "github.com/EROQIN/relite-reader/backend/internal/http"
 	"github.com/EROQIN/relite-reader/backend/internal/preferences"
+	"github.com/EROQIN/relite-reader/backend/internal/progress"
 	"github.com/EROQIN/relite-reader/backend/internal/users"
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
@@ -29,6 +30,7 @@ func main() {
 	authSvc := auth.NewService(userStore)
 	bookStore := books.NewMemoryStore()
 	var prefsStore preferences.Store = preferences.NewMemoryStore()
+	var progressStore progress.Store = progress.NewMemoryStore()
 	if dataDir := os.Getenv("RELITE_DATA_DIR"); dataDir != "" {
 		path := filepath.Join(dataDir, "preferences.json")
 		if err := preferences.EnsureDir(path); err != nil {
@@ -39,6 +41,15 @@ func main() {
 			log.Fatal(err)
 		}
 		prefsStore = fileStore
+		progressPath := filepath.Join(dataDir, "progress.json")
+		if err := progress.EnsureDir(progressPath); err != nil {
+			log.Fatal(err)
+		}
+		progressFile, err := progress.NewFileStore(progressPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		progressStore = progressFile
 	}
 	webStore := webdav.NewMemoryStore()
 	webClient := webdav.NewHTTPClient(http.DefaultClient)
@@ -58,7 +69,7 @@ func main() {
 	go webdav.NewScheduler(webSvc, ticker.C).Start(ctx)
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore),
+		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore, progressStore),
 	}
 	log.Fatal(srv.ListenAndServe())
 }
