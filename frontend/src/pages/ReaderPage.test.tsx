@@ -31,9 +31,16 @@ vi.mock('../lib/readerPrefs', () => ({
     focusMode: false,
   }),
   loadReaderPrefsForBook: () => null,
+  loadCustomPresets: () => [],
   saveReaderPrefs: vi.fn(),
+  saveCustomPresets: vi.fn(),
   saveReaderPrefsForBook: vi.fn(),
   clearReaderPrefsForBook: vi.fn(),
+  createCustomPreset: (label: string, prefs: unknown) => ({
+    id: `custom-${label}`,
+    label,
+    prefs,
+  }),
   readerPresets: [{ id: 'paper', label: 'Paper Focus', prefs: { theme: 'paper' } }],
 }))
 

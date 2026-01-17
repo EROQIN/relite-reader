@@ -280,6 +280,61 @@ a {
   gap: 1rem;
 }
 
+.reader-presets {
+  display: grid;
+  gap: 0.75rem;
+  border-top: 1px dashed var(--line);
+  padding-top: 0.75rem;
+}
+
+.reader-presets-header {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.reader-presets-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.reader-presets-create {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+}
+
+.reader-presets-create input,
+.reader-preset-item input {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.9rem;
+  background: var(--bg-soft);
+}
+
+.reader-presets-empty {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.reader-presets-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.reader-preset-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.reader-preset-actions {
+  display: inline-flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .field {
   display: grid;
   gap: 0.5rem;
@@ -396,6 +451,15 @@ a {
   .hero {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .reader-presets-create,
+  .reader-preset-item {
+    grid-template-columns: 1fr;
+  }
+
+  .reader-preset-actions {
+    justify-content: flex-start;
   }
 }
 

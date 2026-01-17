@@ -5,10 +5,14 @@ import ReaderControls from '../reader/ReaderControls'
 import ReaderQuickControls from '../reader/ReaderQuickControls'
 import {
   defaultReaderPrefs,
+  createCustomPreset,
+  loadCustomPresets,
   loadReaderPrefs,
   loadReaderPrefsForBook,
   ReaderPrefs,
+  ReaderPreset,
   readerPresets,
+  saveCustomPresets,
   saveReaderPrefs,
   saveReaderPrefsForBook,
   clearReaderPrefsForBook,
@@ -25,8 +29,8 @@ const themes: ReaderPrefs['theme'][] = ['paper', 'sepia', 'night']
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
-const matchPreset = (prefs: ReaderPrefs) => {
-  const found = readerPresets.find(
+const matchPreset = (prefs: ReaderPrefs, presets: ReaderPreset[]) => {
+  const found = presets.find(
     (preset) => JSON.stringify(preset.prefs) === JSON.stringify(prefs)
   )
   return found?.id ?? 'custom'
@@ -39,7 +43,13 @@ export default function ReaderPage() {
   const [prefs, setPrefs] = useState<ReaderPrefs>(
     () => initialBookPrefs ?? loadReaderPrefs()
   )
+  const [customPresets, setCustomPresets] = useState(() => loadCustomPresets())
   const [open, setOpen] = useState(true)
+
+  const allPresets = useMemo(
+    () => [...readerPresets, ...customPresets],
+    [customPresets]
+  )
 
   const style = useMemo(
     () => ({
@@ -74,10 +84,51 @@ export default function ReaderPage() {
   }
 
   const applyPreset = (presetId: string) => {
-    const preset = readerPresets.find((item) => item.id === presetId)
+    const preset = allPresets.find((item) => item.id === presetId)
     if (preset) {
       updatePrefs(preset.prefs)
     }
+  }
+
+  const savePreset = (label: string) => {
+    const trimmed = label.trim()
+    if (!trimmed) {
+      return
+    }
+    setCustomPresets((prev) => {
+      const existing = prev.find(
+        (preset) => preset.label.toLowerCase() === trimmed.toLowerCase()
+      )
+      const next = existing
+        ? prev.map((preset) =>
+            preset.id === existing.id ? { ...preset, prefs: { ...prefs } } : preset
+          )
+        : [...prev, createCustomPreset(trimmed, prefs)]
+      saveCustomPresets(next)
+      return next
+    })
+  }
+
+  const renamePreset = (presetId: string, label: string) => {
+    const trimmed = label.trim()
+    if (!trimmed) {
+      return
+    }
+    setCustomPresets((prev) => {
+      const next = prev.map((preset) =>
+        preset.id === presetId ? { ...preset, label: trimmed } : preset
+      )
+      saveCustomPresets(next)
+      return next
+    })
+  }
+
+  const deletePreset = (presetId: string) => {
+    setCustomPresets((prev) => {
+      const next = prev.filter((preset) => preset.id !== presetId)
+      saveCustomPresets(next)
+      return next
+    })
   }
 
   const cycleTheme = () => {
@@ -167,11 +218,15 @@ export default function ReaderPage() {
         <aside className={`reader-settings ${open ? 'open' : ''}`}>
           <ReaderControls
             prefs={prefs}
-            presets={readerPresets}
-            activePreset={matchPreset(prefs)}
+            presets={allPresets}
+            activePreset={matchPreset(prefs, allPresets)}
             bookScoped={bookScoped}
+            customPresets={customPresets}
             onScopeChange={toggleScope}
             onApplyPreset={applyPreset}
+            onSavePreset={savePreset}
+            onRenamePreset={renamePreset}
+            onDeletePreset={deletePreset}
             onChange={updatePrefs}
             onReset={() => updatePrefs(defaultReaderPrefs)}
           />

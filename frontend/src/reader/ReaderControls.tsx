@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { ReaderPrefs, ReaderPreset } from '../lib/readerPrefs'
 
 const clamp = (value: number, min: number, max: number) =>
@@ -8,8 +9,12 @@ export default function ReaderControls({
   presets,
   activePreset,
   bookScoped,
+  customPresets,
   onScopeChange,
   onApplyPreset,
+  onSavePreset,
+  onRenamePreset,
+  onDeletePreset,
   onChange,
   onReset,
 }: {
@@ -17,11 +22,35 @@ export default function ReaderControls({
   presets: ReaderPreset[]
   activePreset: string
   bookScoped: boolean
+  customPresets: ReaderPreset[]
   onScopeChange: (next: boolean) => void
   onApplyPreset: (presetId: string) => void
+  onSavePreset: (label: string) => void
+  onRenamePreset: (presetId: string, label: string) => void
+  onDeletePreset: (presetId: string) => void
   onChange: (prefs: ReaderPrefs) => void
   onReset: () => void
 }) {
+  const [newPresetName, setNewPresetName] = useState('')
+  const [renameDrafts, setRenameDrafts] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    const nextDrafts: Record<string, string> = {}
+    customPresets.forEach((preset) => {
+      nextDrafts[preset.id] = preset.label
+    })
+    setRenameDrafts(nextDrafts)
+  }, [customPresets])
+
+  const handleSavePreset = () => {
+    const trimmed = newPresetName.trim()
+    if (!trimmed) {
+      return
+    }
+    onSavePreset(trimmed)
+    setNewPresetName('')
+  }
+
   return (
     <div className="panel reader-panel">
       <div className="reader-panel-header">
@@ -44,6 +73,73 @@ export default function ReaderControls({
           ))}
         </select>
       </label>
+      <div className="reader-presets">
+        <div className="reader-presets-header">
+          <h3>Custom presets</h3>
+          <span className="muted">Save your current setup.</span>
+        </div>
+        <div className="reader-presets-create">
+          <input
+            type="text"
+            value={newPresetName}
+            onChange={(event) => setNewPresetName(event.target.value)}
+            placeholder="Preset name"
+          />
+          <button
+            className="button"
+            onClick={handleSavePreset}
+            disabled={!newPresetName.trim()}
+          >
+            Save
+          </button>
+        </div>
+        {customPresets.length === 0 ? (
+          <p className="muted reader-presets-empty">No custom presets yet.</p>
+        ) : (
+          <div className="reader-presets-list">
+            {customPresets.map((preset) => {
+              const draft = renameDrafts[preset.id] ?? preset.label
+              const trimmed = draft.trim()
+              const canRename = trimmed.length > 0 && trimmed !== preset.label
+              return (
+                <div className="reader-preset-item" key={preset.id}>
+                  <input
+                    type="text"
+                    value={draft}
+                    onChange={(event) =>
+                      setRenameDrafts((prev) => ({
+                        ...prev,
+                        [preset.id]: event.target.value,
+                      }))
+                    }
+                  />
+                  <div className="reader-preset-actions">
+                    <button
+                      className="button"
+                      onClick={() => onApplyPreset(preset.id)}
+                    >
+                      Apply
+                    </button>
+                    <button
+                      className="button"
+                      onClick={() => onRenamePreset(preset.id, trimmed)}
+                      disabled={!canRename}
+                    >
+                      Rename
+                    </button>
+                    <button
+                      className="button"
+                      onClick={() => onDeletePreset(preset.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
       <label className="field toggle">
         <input
           type="checkbox"

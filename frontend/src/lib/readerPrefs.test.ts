@@ -6,6 +6,9 @@ import {
   saveReaderPrefsForBook,
   clearReaderPrefsForBook,
   readerPresets,
+  loadCustomPresets,
+  saveCustomPresets,
+  createCustomPreset,
 } from './readerPrefs'
 
 afterEach(() => {
@@ -34,6 +37,18 @@ test('book prefs override is stored and cleared', () => {
   expect(loadReaderPrefsForBook(bookId)?.fontSize).toBe(21)
   clearReaderPrefsForBook(bookId)
   expect(loadReaderPrefsForBook(bookId)).toBeNull()
+})
+
+test('custom presets persist and trim labels', () => {
+  const created = createCustomPreset('  Calm  ', {
+    ...defaultReaderPrefs,
+    fontSize: 20,
+  })
+  saveCustomPresets([created])
+  const loaded = loadCustomPresets()
+  expect(loaded).toHaveLength(1)
+  expect(loaded[0].label).toBe('Calm')
+  expect(loaded[0].prefs.fontSize).toBe(20)
 })
 
 test('reader prefs include layout and focus fields', () => {

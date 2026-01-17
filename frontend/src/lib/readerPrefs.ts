@@ -1,6 +1,7 @@
 import { loadJson, saveJson, PREFS_KEY } from './storage'
 
 const BOOK_PREFS_KEY = 'relite.prefs.books'
+const CUSTOM_PRESETS_KEY = 'relite.prefs.customPresets'
 
 export type ReaderTheme = 'paper' | 'sepia' | 'night'
 export type ReaderFont = 'sans' | 'serif' | 'mono'
@@ -52,6 +53,25 @@ export const readerPresets: ReaderPreset[] = [
     prefs: { ...defaultReaderPrefs, theme: 'night', fontSize: 19, lineHeight: 1.8 },
   },
 ]
+
+export function loadCustomPresets(): ReaderPreset[] {
+  const presets = loadJson<ReaderPreset[]>(CUSTOM_PRESETS_KEY, [])
+  return Array.isArray(presets) ? presets : []
+}
+
+export function saveCustomPresets(presets: ReaderPreset[]) {
+  saveJson(CUSTOM_PRESETS_KEY, presets)
+}
+
+export function createCustomPreset(label: string, prefs: ReaderPrefs): ReaderPreset {
+  const normalized = label.trim()
+  const id = `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  return {
+    id,
+    label: normalized,
+    prefs: { ...prefs },
+  }
+}
 
 export function loadReaderPrefs(): ReaderPrefs {
   return loadJson(PREFS_KEY, defaultReaderPrefs)
