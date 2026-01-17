@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { I18nProvider } from '../components/I18nProvider'
 import TxtReader from './TxtReader'
 
 vi.mock('../lib/textStore', () => ({
@@ -10,18 +11,24 @@ vi.mock('../lib/progressStore', () => ({
   saveProgress: vi.fn(),
 }))
 
-test('renders txt content', () => {
+const renderWithLocale = () => {
+  localStorage.setItem('relite.locale', 'zh-CN')
   render(
-    <TxtReader item={{ id: '1', title: 'Test', format: 'txt', source: 'local' }} />
+    <I18nProvider>
+      <TxtReader item={{ id: '1', title: 'Test', format: 'txt', source: 'local' }} />
+    </I18nProvider>
   )
+}
+
+test('renders txt content', () => {
+  renderWithLocale()
 
   expect(screen.getByText('Hello world')).toBeInTheDocument()
 })
 
 test('shows progress percent', () => {
-  render(
-    <TxtReader item={{ id: '1', title: 'Test', format: 'txt', source: 'local' }} />
-  )
+  renderWithLocale()
 
   expect(screen.getAllByText('25%').length).toBeGreaterThan(0)
+  expect(screen.getByLabelText('阅读进度')).toBeInTheDocument()
 })

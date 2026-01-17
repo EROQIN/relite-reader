@@ -127,6 +127,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'reader.presets.night': 'Night Studio',
     'reader.presets.slate': 'Slate Focus',
     'reader.presets.mist': 'Mist Daylight',
+    'reader.meta.time': '{left} min left · {total} min total',
+    'reader.progress.label': 'Reading progress',
+    'reader.text.empty': 'No text content found.',
   },
   'zh-CN': {
     'nav.library': '书库',
@@ -245,6 +248,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'reader.presets.night': '夜间工作室',
     'reader.presets.slate': '石板专注',
     'reader.presets.mist': '薄雾日光',
+    'reader.meta.time': '剩余 {left} 分钟 · 共 {total} 分钟',
+    'reader.progress.label': '阅读进度',
+    'reader.text.empty': '未找到文本内容。',
   },
 }
 

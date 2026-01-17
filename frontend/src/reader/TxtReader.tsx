@@ -5,6 +5,7 @@ import { loadProgress, saveProgress } from '../lib/progressStore'
 import { loadText } from '../lib/textStore'
 import { fetchProgress, saveProgressRemote } from '../lib/progressApi'
 import { getToken } from '../lib/authApi'
+import { useI18n } from '../components/I18nProvider'
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
@@ -20,6 +21,7 @@ export default function TxtReader({
   const [progress, setProgress] = useState(() => loadProgress(item.id))
   const scrollRef = useRef<HTMLDivElement>(null)
   const [token, setToken] = useState(() => getToken())
+  const { t } = useI18n()
 
   const wordCount = useMemo(() => {
     if (!text) return 0
@@ -95,7 +97,7 @@ export default function TxtReader({
           <h2>{item.title}</h2>
           {minutesLeft !== null && totalMinutes !== null && (
             <span className="reader-time">
-              {minutesLeft} min left · {totalMinutes} min total
+              {t('reader.meta.time', { left: minutesLeft, total: totalMinutes })}
             </span>
           )}
         </div>
@@ -108,7 +110,7 @@ export default function TxtReader({
           max={100}
           value={Math.round(progress * 100)}
           onChange={onScrub}
-          aria-label="Reading progress"
+          aria-label={t('reader.progress.label')}
         />
         <div className="reader-progress-meta">
           <span>0%</span>
@@ -117,7 +119,7 @@ export default function TxtReader({
         </div>
       </div>
       <div className="reader-scroll" ref={scrollRef} onScroll={onScroll}>
-        <pre className="reader-text">{text || 'No text content found.'}</pre>
+        <pre className="reader-text">{text || t('reader.text.empty')}</pre>
       </div>
     </div>
   )
