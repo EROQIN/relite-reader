@@ -6,7 +6,7 @@ import { useI18n } from './I18nProvider'
 
 export default function AppShell() {
   const [token, setToken] = useState(() => getToken())
-  const { locale, setLocale } = useI18n()
+  const { locale, setLocale, t } = useI18n()
 
   useEffect(() => {
     const handler = () => setToken(getToken())
@@ -22,24 +22,24 @@ export default function AppShell() {
     <div className="app-shell">
       <header className="app-header">
         <Link to="/" className="brand">
-          Relite Reader
+          {t('nav.brand')}
         </Link>
         <nav className="app-nav">
-          <Link to="/">Library</Link>
-          <Link to="/webdav">WebDAV</Link>
+          <Link to="/">{t('nav.library')}</Link>
+          <Link to="/webdav">{t('nav.webdav')}</Link>
           <button
             className="button app-lang-toggle"
             onClick={() => setLocale(locale === 'en' ? 'zh-CN' : 'en')}
-            aria-label="Switch language"
+            aria-label={t('nav.localeToggle')}
           >
             {locale === 'en' ? '中文' : 'EN'}
           </button>
           {token ? (
             <button className="button" onClick={() => clearToken()}>
-              Log out
+              {t('nav.logout')}
             </button>
           ) : (
-            <Link to="/login">Login</Link>
+            <Link to="/login">{t('nav.login')}</Link>
           )}
         </nav>
       </header>
