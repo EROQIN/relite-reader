@@ -322,6 +322,33 @@ a {
   color: var(--reader-ink);
 }
 
+.reader-page.focus .reader-toolbar,
+.reader-page.focus .reader-settings {
+  display: none;
+}
+
+.reader-page.focus .reader-surface {
+  max-width: min(920px, 100%);
+}
+
+.reader-focus-exit {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 5;
+}
+
+.reader-page.columns .reader-text {
+  column-count: 2;
+  column-gap: 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .reader-page.columns .reader-text {
+    column-count: 1;
+  }
+}
+
 .timestamp {
   display: block;
   font-size: 0.75rem;
