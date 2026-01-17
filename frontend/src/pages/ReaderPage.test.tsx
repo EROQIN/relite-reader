@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react'
 import ReaderPage from './ReaderPage'
 
+vi.mock('react-router-dom', () => ({
+  useParams: () => ({ bookId: 'book-1' }),
+}))
+
 vi.mock('../reader/ReaderShell', () => ({
   default: () => <div>Shell</div>,
 }))
@@ -22,14 +26,14 @@ vi.mock('../lib/readerPrefs', () => ({
     pageWidth: 720,
     textAlign: 'left',
   }),
+  loadReaderPrefsForBook: () => null,
   saveReaderPrefs: vi.fn(),
+  saveReaderPrefsForBook: vi.fn(),
+  clearReaderPrefsForBook: vi.fn(),
+  readerPresets: [{ id: 'paper', label: 'Paper Focus', prefs: { theme: 'paper' } }],
 }))
 
-vi.mock('../reader/ReaderControls', () => ({
-  default: () => <div>Controls</div>,
-}))
-
-test('renders reader settings toggle', () => {
+test('renders preset selector label', () => {
   render(<ReaderPage />)
-  expect(screen.getByRole('button', { name: /settings/i })).toBeInTheDocument()
+  expect(screen.getByText(/preset/i)).toBeInTheDocument()
 })

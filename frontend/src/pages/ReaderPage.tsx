@@ -1,11 +1,16 @@
 import { useMemo, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import ReaderShell from '../reader/ReaderShell'
 import ReaderControls from '../reader/ReaderControls'
 import {
   defaultReaderPrefs,
   loadReaderPrefs,
+  loadReaderPrefsForBook,
   ReaderPrefs,
+  readerPresets,
   saveReaderPrefs,
+  saveReaderPrefsForBook,
+  clearReaderPrefsForBook,
 } from '../lib/readerPrefs'
 
 const fontMap: Record<ReaderPrefs['font'], string> = {
@@ -14,8 +19,20 @@ const fontMap: Record<ReaderPrefs['font'], string> = {
   mono: "'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace",
 }
 
+const matchPreset = (prefs: ReaderPrefs) => {
+  const found = readerPresets.find(
+    (preset) => JSON.stringify(preset.prefs) === JSON.stringify(prefs)
+  )
+  return found?.id ?? 'custom'
+}
+
 export default function ReaderPage() {
-  const [prefs, setPrefs] = useState<ReaderPrefs>(() => loadReaderPrefs())
+  const { bookId } = useParams()
+  const initialBookPrefs = bookId ? loadReaderPrefsForBook(bookId) : null
+  const [bookScoped, setBookScoped] = useState(Boolean(initialBookPrefs))
+  const [prefs, setPrefs] = useState<ReaderPrefs>(
+    () => initialBookPrefs ?? loadReaderPrefs()
+  )
   const [open, setOpen] = useState(true)
 
   const style = useMemo(
@@ -31,7 +48,30 @@ export default function ReaderPage() {
 
   const updatePrefs = (next: ReaderPrefs) => {
     setPrefs(next)
+    if (bookScoped && bookId) {
+      saveReaderPrefsForBook(bookId, next)
+      return
+    }
     saveReaderPrefs(next)
+  }
+
+  const toggleScope = (next: boolean) => {
+    setBookScoped(next)
+    if (next && bookId) {
+      saveReaderPrefsForBook(bookId, prefs)
+      return
+    }
+    if (!next && bookId) {
+      clearReaderPrefsForBook(bookId)
+      saveReaderPrefs(prefs)
+    }
+  }
+
+  const applyPreset = (presetId: string) => {
+    const preset = readerPresets.find((item) => item.id === presetId)
+    if (preset) {
+      updatePrefs(preset.prefs)
+    }
   }
 
   return (
@@ -56,6 +96,11 @@ export default function ReaderPage() {
         <aside className={`reader-settings ${open ? 'open' : ''}`}>
           <ReaderControls
             prefs={prefs}
+            presets={readerPresets}
+            activePreset={matchPreset(prefs)}
+            bookScoped={bookScoped}
+            onScopeChange={toggleScope}
+            onApplyPreset={applyPreset}
             onChange={updatePrefs}
             onReset={() => updatePrefs(defaultReaderPrefs)}
           />

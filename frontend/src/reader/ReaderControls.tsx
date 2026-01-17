@@ -1,14 +1,24 @@
-import { ReaderPrefs } from '../lib/readerPrefs'
+import { ReaderPrefs, ReaderPreset } from '../lib/readerPrefs'
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
 
 export default function ReaderControls({
   prefs,
+  presets,
+  activePreset,
+  bookScoped,
+  onScopeChange,
+  onApplyPreset,
   onChange,
   onReset,
 }: {
   prefs: ReaderPrefs
+  presets: ReaderPreset[]
+  activePreset: string
+  bookScoped: boolean
+  onScopeChange: (next: boolean) => void
+  onApplyPreset: (presetId: string) => void
   onChange: (prefs: ReaderPrefs) => void
   onReset: () => void
 }) {
@@ -20,6 +30,28 @@ export default function ReaderControls({
           Reset
         </button>
       </div>
+      <label className="field">
+        Preset
+        <select
+          value={activePreset}
+          onChange={(event) => onApplyPreset(event.target.value)}
+        >
+          <option value="custom">Custom</option>
+          {presets.map((preset) => (
+            <option key={preset.id} value={preset.id}>
+              {preset.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="field toggle">
+        <input
+          type="checkbox"
+          checked={bookScoped}
+          onChange={(event) => onScopeChange(event.target.checked)}
+        />
+        Apply to this book
+      </label>
       <label className="field">
         Theme
         <select
