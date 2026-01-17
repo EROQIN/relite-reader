@@ -155,6 +155,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'placeholder.docx': 'Word document detected. Parsing support is queued.',
     'placeholder.unsupported': 'This format is not yet supported.',
     'placeholder.note': 'Your file is indexed and safe. We will notify you once rendering is ready.',
+    'pwa.title': 'Install Relite Reader',
+    'pwa.description.install': 'Add this app to your home screen for offline-friendly reading.',
+    'pwa.description.ios': 'On iOS Safari, tap Share → Add to Home Screen.',
+    'pwa.action.install': 'Install',
+    'pwa.action.dismiss': 'Dismiss',
   },
   'zh-CN': {
     'nav.library': '书库',
@@ -301,6 +306,11 @@ const translations: Record<Locale, Record<string, string>> = {
     'placeholder.docx': '检测到 Word 文档，解析支持已排队。',
     'placeholder.unsupported': '该格式暂不支持。',
     'placeholder.note': '文件已安全索引，渲染就绪后将通知你。',
+    'pwa.title': '安装 Relite Reader',
+    'pwa.description.install': '添加到主屏幕，支持离线阅读。',
+    'pwa.description.ios': '在 iOS Safari 中点按分享 → 添加到主屏幕。',
+    'pwa.action.install': '安装',
+    'pwa.action.dismiss': '稍后',
   },
 }
 

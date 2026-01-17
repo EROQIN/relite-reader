@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useI18n } from './I18nProvider'
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>
@@ -23,6 +24,7 @@ export default function PwaInstallPrompt() {
   const [dismissed, setDismissed] = useState(() =>
     Boolean(localStorage.getItem(DISMISS_KEY))
   )
+  const { t } = useI18n()
 
   const showIos = useMemo(() => isIos() && isSafari(), [])
 
@@ -69,21 +71,21 @@ export default function PwaInstallPrompt() {
   return (
     <div className="pwa-banner" role="status" aria-live="polite">
       <div>
-        <strong>Install Relite Reader</strong>
+        <strong>{t('pwa.title')}</strong>
         <p className="muted">
           {installSupported
-            ? 'Add this app to your home screen for offline-friendly reading.'
-            : 'On iOS Safari, tap Share → Add to Home Screen.'}
+            ? t('pwa.description.install')
+            : t('pwa.description.ios')}
         </p>
       </div>
       <div className="pwa-actions">
         {installSupported && (
           <button className="button" onClick={handleInstall}>
-            Install
+            {t('pwa.action.install')}
           </button>
         )}
         <button className="button" onClick={handleDismiss}>
-          Dismiss
+          {t('pwa.action.dismiss')}
         </button>
       </div>
     </div>
