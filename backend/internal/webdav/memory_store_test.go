@@ -28,3 +28,13 @@ func TestMemoryStoreCRUD(t *testing.T) {
 		t.Fatalf("delete: %v", err)
 	}
 }
+
+func TestMemoryStoreListAll(t *testing.T) {
+	store := NewMemoryStore()
+	_, _ = store.Create("user-1", Connection{BaseURL: "https://a.example", Username: "a"})
+	_, _ = store.Create("user-2", Connection{BaseURL: "https://b.example", Username: "b"})
+	list, _ := store.ListAll()
+	if len(list) != 2 {
+		t.Fatalf("expected 2 connections, got %d", len(list))
+	}
+}

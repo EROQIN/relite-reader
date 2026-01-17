@@ -1,6 +1,9 @@
 package webdav
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 var ErrNotFound = errors.New("webdav connection not found")
 
@@ -12,11 +15,13 @@ type Connection struct {
 	EncryptedSecret []byte
 	LastSyncStatus  string
 	LastError       string
+	LastSyncAt      time.Time
 }
 
 type Store interface {
 	Create(userID string, conn Connection) (Connection, error)
 	ListByUser(userID string) ([]Connection, error)
+	ListAll() ([]Connection, error)
 	GetByID(userID, id string) (Connection, error)
 	Update(userID string, conn Connection) (Connection, error)
 	Delete(userID, id string) error

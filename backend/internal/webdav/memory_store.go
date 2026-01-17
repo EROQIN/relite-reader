@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"sync"
+	"time"
 )
 
 type MemoryStore struct {
@@ -33,6 +34,18 @@ func (s *MemoryStore) ListByUser(userID string) ([]Connection, error) {
 	var out []Connection
 	for _, conn := range s.items[userID] {
 		out = append(out, conn)
+	}
+	return out, nil
+}
+
+func (s *MemoryStore) ListAll() ([]Connection, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var out []Connection
+	for _, userItems := range s.items {
+		for _, conn := range userItems {
+			out = append(out, conn)
+		}
 	}
 	return out, nil
 }
@@ -76,6 +89,7 @@ func (s *MemoryStore) UpdateSyncStatus(userID, id, status, lastError string) (Co
 	}
 	conn.LastSyncStatus = status
 	conn.LastError = lastError
+	conn.LastSyncAt = time.Now()
 	s.items[userID][id] = conn
 	return conn, nil
 }
