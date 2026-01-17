@@ -28,7 +28,7 @@ func main() {
 	userStore := users.NewMemoryStore()
 	authSvc := auth.NewService(userStore)
 	bookStore := books.NewMemoryStore()
-	prefsStore := preferences.NewMemoryStore()
+	var prefsStore preferences.Store = preferences.NewMemoryStore()
 	if dataDir := os.Getenv("RELITE_DATA_DIR"); dataDir != "" {
 		path := filepath.Join(dataDir, "preferences.json")
 		if err := preferences.EnsureDir(path); err != nil {
