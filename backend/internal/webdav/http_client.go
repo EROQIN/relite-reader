@@ -149,6 +149,7 @@ func parseMultiStatus(raw []byte) ([]parsedEntry, error) {
 
 func classifyEntries(baseURL string, entries []parsedEntry) listResult {
 	base, _ := url.Parse(baseURL)
+	baseHost := base.Scheme + "://" + base.Host
 	selfPath := strings.TrimRight(base.Path, "/") + "/"
 	var result listResult
 	for _, entry := range entries {
@@ -156,15 +157,21 @@ func classifyEntries(baseURL string, entries []parsedEntry) listResult {
 		if resolved == "" {
 			continue
 		}
-		if strings.TrimRight(resolved, "/")+"/" == selfPath {
+		resolvedPath := resolved
+		if strings.HasPrefix(resolved, "http://") || strings.HasPrefix(resolved, "https://") {
+			if parsed, err := url.Parse(resolved); err == nil {
+				resolvedPath = parsed.Path
+			}
+		}
+		if strings.TrimRight(resolvedPath, "/")+"/" == selfPath {
 			continue
 		}
-		if entry.IsDir || strings.HasSuffix(resolved, "/") {
-			result.dirs = append(result.dirs, ensureTrailingSlash(resolved))
+		if entry.IsDir || strings.HasSuffix(resolvedPath, "/") {
+			result.dirs = append(result.dirs, baseHost+ensureTrailingSlash(resolvedPath))
 			continue
 		}
 		result.files = append(result.files, Entry{
-			Path:    resolved,
+			Path:    resolvedPath,
 			Size:    entry.Size,
 			ModTime: entry.Modified,
 		})
