@@ -7,11 +7,13 @@ vi.mock('../lib/authApi', () => ({
 
 test('renders login form', () => {
   render(<LoginPage />)
-  expect(screen.getByText('Sign in')).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Sign in' })).toBeInTheDocument()
 })
 
 test('toggles to register', () => {
   render(<LoginPage />)
   fireEvent.click(screen.getByRole('button', { name: 'Need an account?' }))
-  expect(screen.getByText('Create account')).toBeInTheDocument()
+  expect(
+    screen.getByRole('heading', { name: 'Create account' })
+  ).toBeInTheDocument()
 })
