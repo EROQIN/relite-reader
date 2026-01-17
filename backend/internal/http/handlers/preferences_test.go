@@ -14,6 +14,7 @@ import (
 )
 
 type prefsResponse struct {
+	Locale string                        `json:"locale"`
 	Reader preferences.ReaderPreferences `json:"reader"`
 }
 
@@ -48,6 +49,9 @@ func TestPreferencesHandlerGetDefaults(t *testing.T) {
 	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
 		t.Fatalf("decode: %v", err)
 	}
+	if payload.Locale != "en" {
+		t.Fatalf("expected locale en, got %q", payload.Locale)
+	}
 	if payload.Reader.Theme == "" {
 		t.Fatalf("expected theme, got empty")
 	}
@@ -62,7 +66,10 @@ func TestPreferencesHandlerPutUpdates(t *testing.T) {
 
 	store := preferences.NewMemoryStore()
 	h := handlers.NewPreferencesHandler(secret, store)
-	payload := preferences.UserPreferences{Reader: preferences.ReaderPreferences{Theme: "night", FontSize: 20}}
+	payload := preferences.UserPreferences{
+		Locale: "zh-CN",
+		Reader: preferences.ReaderPreferences{Theme: "night", FontSize: 20},
+	}
 	body, _ := json.Marshal(payload)
 	req := httptest.NewRequest(http.MethodPut, "/api/preferences", bytes.NewReader(body))
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -74,6 +81,9 @@ func TestPreferencesHandlerPutUpdates(t *testing.T) {
 	var updated prefsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&updated); err != nil {
 		t.Fatalf("decode: %v", err)
+	}
+	if updated.Locale != "zh-CN" {
+		t.Fatalf("expected locale zh-CN, got %q", updated.Locale)
 	}
 	if updated.Reader.Theme != "night" {
 		t.Fatalf("expected theme night, got %s", updated.Reader.Theme)
