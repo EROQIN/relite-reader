@@ -1,26 +1,29 @@
 import { LibraryItem } from '../lib/library'
+import { useI18n } from '../components/I18nProvider'
 
-const descriptions: Record<string, string> = {
-  cbz: 'Comic archive detected. Rendering support is queued.',
-  cbr: 'Comic archive detected. Rendering support is queued.',
-  cb7: 'Comic archive detected. Rendering support is queued.',
-  azw: 'Kindle format detected. Conversion support is queued.',
-  azw3: 'Kindle format detected. Conversion support is queued.',
-  fb2: 'FictionBook format detected. Parsing support is queued.',
-  rtf: 'Rich Text format detected. Parsing support is queued.',
-  docx: 'Word document detected. Parsing support is queued.',
+const descriptionKeys: Record<string, string> = {
+  cbz: 'placeholder.comic',
+  cbr: 'placeholder.comic',
+  cb7: 'placeholder.comic',
+  azw: 'placeholder.kindle',
+  azw3: 'placeholder.kindle',
+  fb2: 'placeholder.fb2',
+  rtf: 'placeholder.rtf',
+  docx: 'placeholder.docx',
 }
 
 export default function PlaceholderReader({ item }: { item: LibraryItem }) {
-  const detail = descriptions[item.format] ?? 'This format is not yet supported.'
+  const { t } = useI18n()
+  const detailKey = descriptionKeys[item.format] ?? 'placeholder.unsupported'
+  const detail = t(detailKey)
   return (
     <div className="panel">
       <h2>{item.title}</h2>
-      <p className="muted">Format: {item.format.toUpperCase()}</p>
-      <p>{detail}</p>
       <p className="muted">
-        Your file is indexed and safe. We will notify you once rendering is ready.
+        {t('placeholder.format', { format: item.format.toUpperCase() })}
       </p>
+      <p>{detail}</p>
+      <p className="muted">{t('placeholder.note')}</p>
     </div>
   )
 }
