@@ -1,3 +1,5 @@
+import { useI18n } from '../components/I18nProvider'
+
 export default function ReaderQuickControls({
   onTheme,
   onIncrease,
@@ -13,10 +15,11 @@ export default function ReaderQuickControls({
   onFocus: () => void
   onSettings: () => void
 }) {
+  const { t } = useI18n()
   return (
     <div className="reader-quick">
       <button className="button" onClick={onTheme}>
-        Theme
+        {t('reader.quick.theme')}
       </button>
       <button className="button" onClick={onDecrease}>
         A-
@@ -25,13 +28,13 @@ export default function ReaderQuickControls({
         A+
       </button>
       <button className="button" onClick={onLayout}>
-        Layout
+        {t('reader.quick.layout')}
       </button>
       <button className="button" onClick={onFocus}>
-        Focus
+        {t('reader.quick.focus')}
       </button>
       <button className="button" onClick={onSettings}>
-        Settings
+        {t('reader.quick.settings')}
       </button>
     </div>
   )

@@ -77,6 +77,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'webdav.message.removeError': 'Unable to remove this connection.',
     'webdav.message.syncStart': 'Sync started. Refresh in a moment to see updates.',
     'webdav.message.syncError': 'Unable to start sync.',
+    'reader.quick.theme': 'Theme',
+    'reader.quick.layout': 'Layout',
+    'reader.quick.focus': 'Focus',
+    'reader.quick.settings': 'Settings',
   },
   'zh-CN': {
     'nav.library': '书库',
@@ -145,6 +149,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'webdav.message.removeError': '无法移除此连接。',
     'webdav.message.syncStart': '已开始同步，稍后刷新查看更新。',
     'webdav.message.syncError': '无法开始同步。',
+    'reader.quick.theme': '主题',
+    'reader.quick.layout': '布局',
+    'reader.quick.focus': '专注',
+    'reader.quick.settings': '设置',
   },
 }
 
