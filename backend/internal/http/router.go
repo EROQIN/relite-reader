@@ -5,6 +5,7 @@ import (
 
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
 	"github.com/EROQIN/relite-reader/backend/internal/http/handlers"
+	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
 
 func NewRouter() http.Handler {
@@ -19,5 +20,17 @@ func NewRouterWithAuth(svc *auth.Service, secret []byte) http.Handler {
 	mux.HandleFunc("/api/health", handlers.Health)
 	mux.HandleFunc("/api/auth/register", authHandler.Register)
 	mux.HandleFunc("/api/auth/login", authHandler.Login)
+	return mux
+}
+
+func NewRouterWithAuthAndWebDAV(svc *auth.Service, secret []byte, webSvc *webdav.Service) http.Handler {
+	mux := http.NewServeMux()
+	authHandler := handlers.NewAuthHandler(svc, secret)
+	webHandler := handlers.NewWebDAVHandler(secret, webSvc)
+	mux.HandleFunc("/api/health", handlers.Health)
+	mux.HandleFunc("/api/auth/register", authHandler.Register)
+	mux.HandleFunc("/api/auth/login", authHandler.Login)
+	mux.Handle("/api/webdav", webHandler)
+	mux.Handle("/api/webdav/", webHandler)
 	return mux
 }
