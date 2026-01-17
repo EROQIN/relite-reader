@@ -1,10 +1,6 @@
 import { useState } from 'react'
 import { authenticate, type AuthMode } from '../lib/authApi'
-
-const toHelper = (mode: AuthMode) =>
-  mode === 'login'
-    ? 'Use your Relite account to sync preferences across devices.'
-    : 'Create a Relite account to save preferences and progress.'
+import { useI18n } from '../components/I18nProvider'
 
 export default function LoginPage() {
   const [mode, setMode] = useState<AuthMode>('login')
@@ -14,6 +10,10 @@ export default function LoginPage() {
     'idle'
   )
   const [message, setMessage] = useState('')
+  const { t } = useI18n()
+
+  const toHelper = (value: AuthMode) =>
+    value === 'login' ? t('auth.helper.login') : t('auth.helper.register')
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -22,17 +22,17 @@ export default function LoginPage() {
 
     if (!email || !password) {
       setStatus('error')
-      setMessage('Please enter both email and password.')
+      setMessage(t('auth.message.missing'))
       return
     }
 
     try {
       await authenticate(mode, { email, password })
       setStatus('success')
-      setMessage('Signed in successfully. You can return to your library.')
+      setMessage(t('auth.message.success'))
     } catch {
       setStatus('error')
-      setMessage('Unable to sign in. Check your credentials or try again.')
+      setMessage(t('auth.message.error'))
     }
   }
 
@@ -40,8 +40,8 @@ export default function LoginPage() {
     <section className="panel auth-panel">
       <div className="auth-header">
         <div>
-          <span className="overline">Account</span>
-          <h1>{mode === 'login' ? 'Sign in' : 'Create account'}</h1>
+          <span className="overline">{t('auth.overline')}</span>
+          <h1>{mode === 'login' ? t('auth.title.login') : t('auth.title.register')}</h1>
           <p className="muted">{toHelper(mode)}</p>
         </div>
         <button
@@ -53,22 +53,22 @@ export default function LoginPage() {
             setMessage('')
           }}
         >
-          {mode === 'login' ? 'Need an account?' : 'Have an account?'}
+          {mode === 'login' ? t('auth.toggle.register') : t('auth.toggle.login')}
         </button>
       </div>
       <form className="form" onSubmit={handleSubmit}>
         <label>
-          Email
+          {t('auth.label.email')}
           <input
             type="email"
-            placeholder="you@example.com"
+            placeholder={t('auth.placeholder.email')}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
           />
         </label>
         <label>
-          Password
+          {t('auth.label.password')}
           <input
             type="password"
             value={password}
@@ -78,10 +78,10 @@ export default function LoginPage() {
         </label>
         <button type="submit" className="button" disabled={status === 'loading'}>
           {status === 'loading'
-            ? 'Working...'
+            ? t('auth.submit.loading')
             : mode === 'login'
-              ? 'Sign in'
-              : 'Create account'}
+              ? t('auth.submit.login')
+              : t('auth.submit.register')}
         </button>
       </form>
       {message && (
@@ -89,9 +89,7 @@ export default function LoginPage() {
           {message}
         </p>
       )}
-      <p className="muted auth-footnote">
-        Local-only reading is available without login.
-      </p>
+      <p className="muted auth-footnote">{t('auth.footnote')}</p>
     </section>
   )
 }
