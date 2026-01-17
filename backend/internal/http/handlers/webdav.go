@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/EROQIN/relite-reader/backend/internal/auth"
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
 
@@ -120,22 +119,6 @@ func (h *WebDAVHandler) handleItem(w http.ResponseWriter, r *http.Request, userI
 	}
 }
 
-func requireUserID(r *http.Request, secret []byte) (string, bool) {
-	authorization := r.Header.Get("Authorization")
-	if authorization == "" {
-		return "", false
-	}
-	parts := strings.SplitN(authorization, " ", 2)
-	if len(parts) != 2 {
-		return "", false
-	}
-	sub, err := auth.ParseTokenSubject(secret, parts[1])
-	if err != nil {
-		return "", false
-	}
-	return sub, true
-}
-
 func toWebDAVResponse(conn webdav.Connection) webdavResponse {
 	return webdavResponse{
 		ID:             conn.ID,
@@ -144,10 +127,4 @@ func toWebDAVResponse(conn webdav.Connection) webdavResponse {
 		LastSyncStatus: conn.LastSyncStatus,
 		LastError:      conn.LastError,
 	}
-}
-
-func writeJSON(w http.ResponseWriter, status int, payload interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(payload)
 }
