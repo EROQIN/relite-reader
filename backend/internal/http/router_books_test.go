@@ -12,11 +12,7 @@ import (
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
 
-type noopClient struct{}
-
-func (noopClient) List(_, _, _ string) ([]webdav.Entry, error) { return nil, nil }
-
-func TestRouterWithWebDAVRoutes(t *testing.T) {
+func TestRouterWithBooksRoutes(t *testing.T) {
 	store := users.NewMemoryStore()
 	authSvc := auth.NewService(store)
 	bookStore := books.NewMemoryStore()
@@ -25,7 +21,7 @@ func TestRouterWithWebDAVRoutes(t *testing.T) {
 	webSvc := webdav.NewService(webStore, noopClient{}, key, bookStore)
 
 	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt"), webSvc, bookStore)
-	req := httptest.NewRequest(http.MethodGet, "/api/webdav", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/books", nil)
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 	if resp.Code == http.StatusNotFound {

@@ -43,7 +43,7 @@ func main() {
 	go webdav.NewScheduler(webSvc, ticker.C).Start(ctx)
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc),
+		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore),
 	}
 	log.Fatal(srv.ListenAndServe())
 }
