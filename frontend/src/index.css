@@ -77,6 +77,29 @@ a {
   padding: 2rem 1.75rem 3rem;
 }
 
+.pwa-banner {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+.pwa-banner p {
+  margin: 0.35rem 0 0;
+}
+
+.pwa-actions {
+  display: inline-flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .panel {
   background: var(--bg-soft);
   border: 1px solid var(--line);
@@ -608,6 +631,11 @@ a {
   }
 
   .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pwa-banner {
     flex-direction: column;
     align-items: flex-start;
   }

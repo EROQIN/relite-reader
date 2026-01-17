@@ -1,4 +1,5 @@
 import { Link, Outlet } from 'react-router-dom'
+import PwaInstallPrompt from './PwaInstallPrompt'
 
 export default function AppShell() {
   return (
@@ -13,6 +14,7 @@ export default function AppShell() {
         </nav>
       </header>
       <main className="app-main">
+        <PwaInstallPrompt />
         <Outlet />
       </main>
     </div>
