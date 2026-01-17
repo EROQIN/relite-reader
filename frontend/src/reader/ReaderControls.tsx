@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ReaderPrefs, ReaderPreset } from '../lib/readerPrefs'
+import { useI18n } from '../components/I18nProvider'
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value))
@@ -33,13 +34,23 @@ export default function ReaderControls({
 }) {
   const [newPresetName, setNewPresetName] = useState('')
   const [renameDrafts, setRenameDrafts] = useState<Record<string, string>>({})
+  const { t } = useI18n()
   const backgroundSwatches = [
-    { label: 'Paper', value: '#fffdf7' },
-    { label: 'Sepia', value: '#f4eadc' },
-    { label: 'Mist', value: '#eef3f5' },
-    { label: 'Slate', value: '#1d232a' },
-  ]
+    { key: 'paper', value: '#fffdf7' },
+    { key: 'sepia', value: '#f4eadc' },
+    { key: 'mist', value: '#eef3f5' },
+    { key: 'slate', value: '#1d232a' },
+  ] as const
   const fallbackBackground = backgroundSwatches[0]?.value ?? '#fffdf7'
+  const themeLabel = (key: ReaderPrefs['theme']) => t(`reader.controls.theme.${key}`)
+  const fontLabel = (key: ReaderPrefs['font']) => t(`reader.controls.font.${key}`)
+  const alignLabel = (key: ReaderPrefs['textAlign']) => t(`reader.controls.alignment.${key}`)
+  const layoutLabel = (key: ReaderPrefs['layoutMode']) => t(`reader.controls.layout.${key}`)
+  const presetLabel = (preset: ReaderPreset) => {
+    const key = `reader.presets.${preset.id}`
+    const translated = t(key)
+    return translated === key ? preset.label : translated
+  }
 
   useEffect(() => {
     const nextDrafts: Record<string, string> = {}
@@ -61,47 +72,49 @@ export default function ReaderControls({
   return (
     <div className="panel reader-panel">
       <div className="reader-panel-header">
-        <h2>Customize</h2>
+        <h2>{t('reader.controls.title')}</h2>
         <button className="button" onClick={onReset}>
-          Reset
+          {t('reader.controls.reset')}
         </button>
       </div>
       <label className="field">
-        Preset
+        {t('reader.controls.preset')}
         <select
           value={activePreset}
           onChange={(event) => onApplyPreset(event.target.value)}
         >
-          <option value="custom">Custom</option>
+          <option value="custom">{t('reader.controls.preset.custom')}</option>
           {presets.map((preset) => (
             <option key={preset.id} value={preset.id}>
-              {preset.label}
+              {presetLabel(preset)}
             </option>
           ))}
         </select>
       </label>
       <div className="reader-presets">
         <div className="reader-presets-header">
-          <h3>Custom presets</h3>
-          <span className="muted">Save your current setup.</span>
+          <h3>{t('reader.controls.customPresets.title')}</h3>
+          <span className="muted">{t('reader.controls.customPresets.subtitle')}</span>
         </div>
         <div className="reader-presets-create">
           <input
             type="text"
             value={newPresetName}
             onChange={(event) => setNewPresetName(event.target.value)}
-            placeholder="Preset name"
+            placeholder={t('reader.controls.customPresets.placeholder')}
           />
           <button
             className="button"
             onClick={handleSavePreset}
             disabled={!newPresetName.trim()}
           >
-            Save
+            {t('reader.controls.customPresets.save')}
           </button>
         </div>
         {customPresets.length === 0 ? (
-          <p className="muted reader-presets-empty">No custom presets yet.</p>
+          <p className="muted reader-presets-empty">
+            {t('reader.controls.customPresets.empty')}
+          </p>
         ) : (
           <div className="reader-presets-list">
             {customPresets.map((preset) => {
@@ -125,20 +138,20 @@ export default function ReaderControls({
                       className="button"
                       onClick={() => onApplyPreset(preset.id)}
                     >
-                      Apply
+                      {t('reader.controls.customPresets.apply')}
                     </button>
                     <button
                       className="button"
                       onClick={() => onRenamePreset(preset.id, trimmed)}
                       disabled={!canRename}
                     >
-                      Rename
+                      {t('reader.controls.customPresets.rename')}
                     </button>
                     <button
                       className="button"
                       onClick={() => onDeletePreset(preset.id)}
                     >
-                      Delete
+                      {t('reader.controls.customPresets.delete')}
                     </button>
                   </div>
                 </div>
@@ -153,10 +166,10 @@ export default function ReaderControls({
           checked={bookScoped}
           onChange={(event) => onScopeChange(event.target.checked)}
         />
-        Apply to this book
+        {t('reader.controls.scope')}
       </label>
       <label className="field">
-        Theme
+        {t('reader.controls.theme.label')}
         <select
           value={prefs.theme}
           onChange={(event) =>
@@ -166,17 +179,17 @@ export default function ReaderControls({
             })
           }
         >
-          <option value="paper">Paper</option>
-          <option value="sepia">Sepia</option>
-          <option value="night">Night</option>
-          <option value="slate">Slate</option>
-          <option value="mist">Mist</option>
+          <option value="paper">{themeLabel('paper')}</option>
+          <option value="sepia">{themeLabel('sepia')}</option>
+          <option value="night">{themeLabel('night')}</option>
+          <option value="slate">{themeLabel('slate')}</option>
+          <option value="mist">{themeLabel('mist')}</option>
         </select>
       </label>
       <div className="reader-background">
         <div className="reader-background-header">
-          <h3>Background</h3>
-          <span className="muted">Override the theme if you want a custom tone.</span>
+          <h3>{t('reader.controls.background.title')}</h3>
+          <span className="muted">{t('reader.controls.background.subtitle')}</span>
         </div>
         <div className="reader-background-swatches">
           {backgroundSwatches.map((swatch) => (
@@ -193,7 +206,9 @@ export default function ReaderControls({
                   background: swatch.value,
                 })
               }
-              aria-label={`Background ${swatch.label}`}
+              aria-label={t('reader.controls.background.swatch', {
+                label: themeLabel(swatch.key),
+              })}
             />
           ))}
         </div>
@@ -207,7 +222,7 @@ export default function ReaderControls({
                 background: event.target.value,
               })
             }
-            aria-label="Custom background color"
+            aria-label={t('reader.controls.background.custom')}
           />
           <button
             type="button"
@@ -220,11 +235,11 @@ export default function ReaderControls({
             }
             disabled={!prefs.background}
           >
-            Use theme
+            {t('reader.controls.background.useTheme')}
           </button>
         </div>
         <label className="field">
-          Brightness
+          {t('reader.controls.brightness')}
           <input
             type="range"
             min={0.8}
@@ -242,7 +257,7 @@ export default function ReaderControls({
         </label>
       </div>
       <label className="field">
-        Font
+        {t('reader.controls.font.label')}
         <select
           value={prefs.font}
           onChange={(event) =>
@@ -252,13 +267,13 @@ export default function ReaderControls({
             })
           }
         >
-          <option value="serif">Serif</option>
-          <option value="sans">Sans</option>
-          <option value="mono">Mono</option>
+          <option value="serif">{fontLabel('serif')}</option>
+          <option value="sans">{fontLabel('sans')}</option>
+          <option value="mono">{fontLabel('mono')}</option>
         </select>
       </label>
       <label className="field">
-        Font size
+        {t('reader.controls.fontSize')}
         <input
           type="range"
           min={14}
@@ -274,7 +289,7 @@ export default function ReaderControls({
         <span className="field-value">{prefs.fontSize}px</span>
       </label>
       <label className="field">
-        Line height
+        {t('reader.controls.lineHeight')}
         <input
           type="range"
           min={1.4}
@@ -291,7 +306,7 @@ export default function ReaderControls({
         <span className="field-value">{prefs.lineHeight.toFixed(2)}</span>
       </label>
       <label className="field">
-        Reading pace
+        {t('reader.controls.readingPace')}
         <input
           type="range"
           min={160}
@@ -302,13 +317,15 @@ export default function ReaderControls({
             onChange({
               ...prefs,
               readingSpeed: clamp(Number(event.target.value), 160, 340),
-            })
-          }
-        />
-        <span className="field-value">{prefs.readingSpeed} wpm</span>
+              })
+            }
+          />
+        <span className="field-value">
+          {t('reader.controls.readingPace.value', { value: prefs.readingSpeed })}
+        </span>
       </label>
       <label className="field">
-        Page width
+        {t('reader.controls.pageWidth')}
         <input
           type="range"
           min={520}
@@ -325,7 +342,7 @@ export default function ReaderControls({
         <span className="field-value">{prefs.pageWidth}px</span>
       </label>
       <label className="field">
-        Alignment
+        {t('reader.controls.alignment.label')}
         <select
           value={prefs.textAlign}
           onChange={(event) =>
@@ -335,12 +352,12 @@ export default function ReaderControls({
             })
           }
         >
-          <option value="left">Left</option>
-          <option value="justify">Justify</option>
+          <option value="left">{alignLabel('left')}</option>
+          <option value="justify">{alignLabel('justify')}</option>
         </select>
       </label>
       <label className="field">
-        Layout
+        {t('reader.controls.layout.label')}
         <select
           value={prefs.layoutMode}
           onChange={(event) =>
@@ -350,8 +367,8 @@ export default function ReaderControls({
             })
           }
         >
-          <option value="single">Single</option>
-          <option value="columns">Columns</option>
+          <option value="single">{layoutLabel('single')}</option>
+          <option value="columns">{layoutLabel('columns')}</option>
         </select>
       </label>
       <label className="field toggle">
@@ -365,7 +382,7 @@ export default function ReaderControls({
             })
           }
         />
-        Focus mode
+        {t('reader.controls.focusMode')}
       </label>
     </div>
   )
