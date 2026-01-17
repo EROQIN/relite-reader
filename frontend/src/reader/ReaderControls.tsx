@@ -214,6 +214,23 @@ export default function ReaderControls({
         <span className="field-value">{prefs.lineHeight.toFixed(2)}</span>
       </label>
       <label className="field">
+        Reading pace
+        <input
+          type="range"
+          min={160}
+          max={340}
+          step={10}
+          value={prefs.readingSpeed}
+          onChange={(event) =>
+            onChange({
+              ...prefs,
+              readingSpeed: clamp(Number(event.target.value), 160, 340),
+            })
+          }
+        />
+        <span className="field-value">{prefs.readingSpeed} wpm</span>
+      </label>
+      <label className="field">
         Page width
         <input
           type="range"

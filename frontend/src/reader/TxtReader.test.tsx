@@ -23,5 +23,5 @@ test('shows progress percent', () => {
     <TxtReader item={{ id: '1', title: 'Test', format: 'txt', source: 'local' }} />
   )
 
-  expect(screen.getByText('25%')).toBeInTheDocument()
+  expect(screen.getAllByText('25%').length).toBeGreaterThan(0)
 })

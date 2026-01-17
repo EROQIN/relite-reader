@@ -213,7 +213,7 @@ export default function ReaderPage() {
       </header>
       <div className="reader-layout">
         <div className="reader-surface">
-          <ReaderShell />
+          <ReaderShell readingSpeed={prefs.readingSpeed} />
         </div>
         <aside className={`reader-settings ${open ? 'open' : ''}`}>
           <ReaderControls

@@ -55,5 +55,6 @@ test('reader prefs include layout and focus fields', () => {
   const prefs = loadReaderPrefs()
   expect(prefs.layoutMode).toBeDefined()
   expect(prefs.focusMode).toBeDefined()
+  expect(prefs.readingSpeed).toBeDefined()
   expect(defaultReaderPrefs.layoutMode).toBe('single')
 })

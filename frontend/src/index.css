@@ -219,6 +219,30 @@ a {
   color: var(--ink-soft);
 }
 
+.reader-time {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 0.25rem;
+}
+
+.reader-progress-controls {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.reader-progress-controls input[type='range'] {
+  width: 100%;
+}
+
+.reader-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
 .reader-scroll {
   max-height: 60vh;
   overflow: auto;

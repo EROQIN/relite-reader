@@ -17,6 +17,7 @@ export interface ReaderPrefs {
   textAlign: ReaderAlign
   layoutMode: ReaderLayoutMode
   focusMode: boolean
+  readingSpeed: number
 }
 
 export interface ReaderPreset {
@@ -34,6 +35,7 @@ export const defaultReaderPrefs: ReaderPrefs = {
   textAlign: 'left',
   layoutMode: 'single',
   focusMode: false,
+  readingSpeed: 240,
 }
 
 export const readerPresets: ReaderPreset[] = [
@@ -54,9 +56,20 @@ export const readerPresets: ReaderPreset[] = [
   },
 ]
 
+const normalizePrefs = (prefs: Partial<ReaderPrefs> | null | undefined): ReaderPrefs => ({
+  ...defaultReaderPrefs,
+  ...prefs,
+})
+
 export function loadCustomPresets(): ReaderPreset[] {
   const presets = loadJson<ReaderPreset[]>(CUSTOM_PRESETS_KEY, [])
-  return Array.isArray(presets) ? presets : []
+  if (!Array.isArray(presets)) {
+    return []
+  }
+  return presets.map((preset) => ({
+    ...preset,
+    prefs: normalizePrefs(preset.prefs),
+  }))
 }
 
 export function saveCustomPresets(presets: ReaderPreset[]) {
@@ -74,7 +87,8 @@ export function createCustomPreset(label: string, prefs: ReaderPrefs): ReaderPre
 }
 
 export function loadReaderPrefs(): ReaderPrefs {
-  return loadJson(PREFS_KEY, defaultReaderPrefs)
+  const prefs = loadJson<Partial<ReaderPrefs>>(PREFS_KEY, defaultReaderPrefs)
+  return normalizePrefs(prefs)
 }
 
 export function saveReaderPrefs(prefs: ReaderPrefs) {
@@ -83,7 +97,8 @@ export function saveReaderPrefs(prefs: ReaderPrefs) {
 
 export function loadReaderPrefsForBook(bookId: string): ReaderPrefs | null {
   const map = loadJson<Record<string, ReaderPrefs>>(BOOK_PREFS_KEY, {})
-  return map[bookId] ?? null
+  const prefs = map[bookId]
+  return prefs ? normalizePrefs(prefs) : null
 }
 
 export function saveReaderPrefsForBook(bookId: string, prefs: ReaderPrefs) {

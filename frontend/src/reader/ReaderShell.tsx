@@ -6,7 +6,7 @@ import PdfReader from './PdfReader'
 import TxtReader from './TxtReader'
 import MobiReader from './MobiReader'
 
-export default function ReaderShell() {
+export default function ReaderShell({ readingSpeed }: { readingSpeed?: number }) {
   const { bookId } = useParams()
   const item = useMemo(() => loadLibrary().find((i) => i.id === bookId), [bookId])
 
@@ -18,7 +18,7 @@ export default function ReaderShell() {
     case 'pdf':
       return <PdfReader item={item} />
     case 'txt':
-      return <TxtReader item={item} />
+      return <TxtReader item={item} readingSpeed={readingSpeed} />
     case 'mobi':
       return <MobiReader item={item} />
     default:

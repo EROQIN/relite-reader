@@ -19,6 +19,7 @@ vi.mock('../lib/readerPrefs', () => ({
     textAlign: 'left',
     layoutMode: 'single',
     focusMode: false,
+    readingSpeed: 240,
   },
   loadReaderPrefs: () => ({
     theme: 'paper',
@@ -29,6 +30,7 @@ vi.mock('../lib/readerPrefs', () => ({
     textAlign: 'left',
     layoutMode: 'single',
     focusMode: false,
+    readingSpeed: 240,
   }),
   loadReaderPrefsForBook: () => null,
   loadCustomPresets: () => [],
@@ -41,7 +43,23 @@ vi.mock('../lib/readerPrefs', () => ({
     label,
     prefs,
   }),
-  readerPresets: [{ id: 'paper', label: 'Paper Focus', prefs: { theme: 'paper' } }],
+  readerPresets: [
+    {
+      id: 'paper',
+      label: 'Paper Focus',
+      prefs: {
+        theme: 'paper',
+        font: 'serif',
+        fontSize: 18,
+        lineHeight: 1.7,
+        pageWidth: 720,
+        textAlign: 'left',
+        layoutMode: 'single',
+        focusMode: false,
+        readingSpeed: 240,
+      },
+    },
+  ],
 }))
 
 vi.mock('../reader/ReaderQuickControls', () => ({
