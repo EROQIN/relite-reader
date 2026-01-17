@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { I18nProvider } from '../components/I18nProvider'
 import LibraryPage from './LibraryPage'
 
 vi.mock('../lib/library', () => ({
@@ -23,6 +24,11 @@ vi.mock('react-router-dom', () => ({
 }))
 
 test('shows open button for local item', () => {
-  render(<LibraryPage />)
-  expect(screen.getByText('Open')).toBeInTheDocument()
+  localStorage.setItem('relite.locale', 'zh-CN')
+  render(
+    <I18nProvider>
+      <LibraryPage />
+    </I18nProvider>
+  )
+  expect(screen.getByText('打开')).toBeInTheDocument()
 })
