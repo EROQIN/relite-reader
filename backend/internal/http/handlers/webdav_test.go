@@ -10,6 +10,7 @@ import (
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
 	"github.com/EROQIN/relite-reader/backend/internal/books"
 	apphttp "github.com/EROQIN/relite-reader/backend/internal/http"
+	"github.com/EROQIN/relite-reader/backend/internal/preferences"
 	"github.com/EROQIN/relite-reader/backend/internal/users"
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
@@ -23,9 +24,10 @@ func TestWebDAVHandlersRequireAuth(t *testing.T) {
 	authSvc := auth.NewService(store)
 	webStore := webdav.NewMemoryStore()
 	bookStore := books.NewMemoryStore()
+	prefsStore := preferences.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
 	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore)
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt-secret"), webSvc, bookStore)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt-secret"), webSvc, bookStore, prefsStore)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/webdav", nil)
 	resp := httptest.NewRecorder()
@@ -44,9 +46,10 @@ func TestWebDAVCreateAndList(t *testing.T) {
 
 	webStore := webdav.NewMemoryStore()
 	bookStore := books.NewMemoryStore()
+	prefsStore := preferences.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
 	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore)
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore)
 
 	payload := map[string]string{"base_url": "https://dav.example.com", "username": "reader", "secret": "pw"}
 	body, _ := json.Marshal(payload)
