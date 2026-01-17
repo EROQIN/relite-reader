@@ -75,7 +75,13 @@ export default function ReaderPage() {
   }
 
   return (
-    <section className="reader-page" data-theme={prefs.theme} style={style}>
+    <section
+      className={`reader-page ${
+        prefs.focusMode ? 'focus' : ''
+      } ${prefs.layoutMode === 'columns' ? 'columns' : ''}`}
+      data-theme={prefs.theme}
+      style={style}
+    >
       <header className="reader-toolbar">
         <div>
           <span className="overline">Reader</span>
@@ -106,6 +112,14 @@ export default function ReaderPage() {
           />
         </aside>
       </div>
+      {prefs.focusMode && (
+        <button
+          className="button reader-focus-exit"
+          onClick={() => updatePrefs({ ...prefs, focusMode: false })}
+        >
+          Exit focus
+        </button>
+      )}
     </section>
   )
 }

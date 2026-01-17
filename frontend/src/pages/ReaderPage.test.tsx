@@ -17,6 +17,8 @@ vi.mock('../lib/readerPrefs', () => ({
     lineHeight: 1.7,
     pageWidth: 720,
     textAlign: 'left',
+    layoutMode: 'single',
+    focusMode: false,
   },
   loadReaderPrefs: () => ({
     theme: 'paper',
@@ -25,6 +27,8 @@ vi.mock('../lib/readerPrefs', () => ({
     lineHeight: 1.7,
     pageWidth: 720,
     textAlign: 'left',
+    layoutMode: 'single',
+    focusMode: false,
   }),
   loadReaderPrefsForBook: () => null,
   saveReaderPrefs: vi.fn(),
@@ -33,7 +37,7 @@ vi.mock('../lib/readerPrefs', () => ({
   readerPresets: [{ id: 'paper', label: 'Paper Focus', prefs: { theme: 'paper' } }],
 }))
 
-test('renders preset selector label', () => {
+test('renders focus mode label', () => {
   render(<ReaderPage />)
-  expect(screen.getByText(/preset/i)).toBeInTheDocument()
+  expect(screen.getByText(/focus mode/i)).toBeInTheDocument()
 })

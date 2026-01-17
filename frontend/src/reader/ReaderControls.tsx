@@ -149,6 +149,34 @@ export default function ReaderControls({
           <option value="justify">Justify</option>
         </select>
       </label>
+      <label className="field">
+        Layout
+        <select
+          value={prefs.layoutMode}
+          onChange={(event) =>
+            onChange({
+              ...prefs,
+              layoutMode: event.target.value as ReaderPrefs['layoutMode'],
+            })
+          }
+        >
+          <option value="single">Single</option>
+          <option value="columns">Columns</option>
+        </select>
+      </label>
+      <label className="field toggle">
+        <input
+          type="checkbox"
+          checked={prefs.focusMode}
+          onChange={(event) =>
+            onChange({
+              ...prefs,
+              focusMode: event.target.checked,
+            })
+          }
+        />
+        Focus mode
+      </label>
     </div>
   )
 }
