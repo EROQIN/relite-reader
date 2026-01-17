@@ -1,22 +1,27 @@
 package webdav
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/EROQIN/relite-reader/backend/internal/books"
+)
 
 type Service struct {
 	store  Store
 	client Client
 	key    []byte
+	books  books.Store
 }
 
-func NewService(store Store, client Client, key []byte) *Service {
-	return &Service{store: store, client: client, key: key}
+func NewService(store Store, client Client, key []byte, booksStore books.Store) *Service {
+	return &Service{store: store, client: client, key: key, books: booksStore}
 }
 
 func (s *Service) Create(userID, baseURL, username, secret string) (Connection, error) {
 	if baseURL == "" || username == "" || secret == "" {
 		return Connection{}, errors.New("invalid payload")
 	}
-	if err := s.client.List(baseURL, username, secret); err != nil {
+	if _, err := s.client.List(baseURL, username, secret); err != nil {
 		return Connection{}, err
 	}
 	encrypted, err := EncryptSecret(s.key, secret)
@@ -39,7 +44,7 @@ func (s *Service) Update(userID, id, baseURL, username, secret string) (Connecti
 	if baseURL == "" || username == "" || secret == "" {
 		return Connection{}, errors.New("invalid payload")
 	}
-	if err := s.client.List(baseURL, username, secret); err != nil {
+	if _, err := s.client.List(baseURL, username, secret); err != nil {
 		return Connection{}, err
 	}
 	encrypted, err := EncryptSecret(s.key, secret)
@@ -70,7 +75,7 @@ func (s *Service) Sync(userID, id string) error {
 		_, _ = s.store.UpdateSyncStatus(userID, id, "error", "decrypt failed")
 		return err
 	}
-	if err := s.client.List(conn.BaseURL, conn.Username, secret); err != nil {
+	if _, err := s.client.List(conn.BaseURL, conn.Username, secret); err != nil {
 		_, _ = s.store.UpdateSyncStatus(userID, id, "error", "sync failed")
 		return err
 	}

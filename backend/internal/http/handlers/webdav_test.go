@@ -15,14 +15,14 @@ import (
 
 type stubClient struct{ err error }
 
-func (s stubClient) List(_, _, _ string) error { return s.err }
+func (s stubClient) List(_, _, _ string) ([]webdav.Entry, error) { return nil, s.err }
 
 func TestWebDAVHandlersRequireAuth(t *testing.T) {
 	store := users.NewMemoryStore()
 	authSvc := auth.NewService(store)
 	webStore := webdav.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
-	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key)
+	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, nil)
 	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt-secret"), webSvc)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/webdav", nil)
@@ -42,7 +42,7 @@ func TestWebDAVCreateAndList(t *testing.T) {
 
 	webStore := webdav.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
-	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key)
+	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, nil)
 	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc)
 
 	payload := map[string]string{"base_url": "https://dav.example.com", "username": "reader", "secret": "pw"}
