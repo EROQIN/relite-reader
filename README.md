@@ -7,7 +7,7 @@ Relite Reader is a WebDAV‑backed reading app with a focused, customizable read
 - Reader customization: themes, fonts, font size, line height, page width, alignment, layout, focus mode.
 - Advanced options: custom backgrounds, brightness control, reading pace, time remaining, quick controls, keyboard shortcuts.
 - PWA install prompt for mobile.
-- Preferences stored locally and optionally synced to backend when a JWT is available.
+- Preferences and reading progress stored locally and optionally synced to backend when a JWT is available.
 
 ## Usage Manual
 
@@ -32,6 +32,7 @@ Inside the reader settings panel you can:
 - Change theme, font, size, line height, page width, alignment, layout.
 - Adjust reading pace (used for time remaining in TXT).
 - Set a custom background color or brightness.
+Progress automatically syncs to the backend when signed in.
 
 Quick actions:
 - Theme cycle, layout toggle, focus mode, and font size controls in the floating quick bar.
@@ -60,6 +61,7 @@ go build -o relite-server ./cmd/server
 
 Notes:
 - `RELITE_DATA_DIR` is optional; when set, preferences persist to `preferences.json` under the directory.
+- Reading progress persists to `progress.json` when `RELITE_DATA_DIR` is set.
 - WebDAV secrets are encrypted with `RELITE_WEB_DAV_KEY` (hex‑encoded 32‑byte key).
 
 ### Frontend (Vite)
@@ -135,6 +137,11 @@ Base URL: `/api`
       }
     }
     ```
+
+### Progress
+- `GET /progress/{bookId}`
+- `PUT /progress/{bookId}`
+  - Body: `{ \"location\": 0.42 }`
 
 ## Project Notes
 - The backend currently uses in‑memory stores for users/books/WebDAV connections. Swap in a persistent store when integrating a database.
