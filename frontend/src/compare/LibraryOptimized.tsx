@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { LibraryItem } from '../lib/library'
 import { useI18n } from '../components/I18nProvider'
+import TasksPanel from '../components/TasksPanel'
 
 interface Props {
   localItems: LibraryItem[]
@@ -69,6 +70,7 @@ export default function LibraryOptimized({
           )}
         </section>
       </div>
+      <TasksPanel />
     </section>
   )
 }
