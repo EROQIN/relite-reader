@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useMemo, useState } from 'react'
 import { LibraryItem } from '../lib/library'
+import { loadProgress } from '../lib/progressStore'
 import { useI18n } from '../components/I18nProvider'
 import TasksPanel from '../components/TasksPanel'
 
@@ -33,6 +34,13 @@ export default function LibraryOptimized({
       )
     })
   }, [localItems, query])
+  const progressMap = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const item of localItems) {
+      map.set(item.id, loadProgress(item.id))
+    }
+    return map
+  }, [localItems])
   return (
     <section className="library-optimized">
       <header className="hero">
@@ -74,31 +82,41 @@ export default function LibraryOptimized({
             </p>
           ) : (
             <ul className="book-list">
-              {filteredItems.map((item) => (
-                <li key={item.id} className="book-row">
-                  <div>
-                    <strong>{item.title}</strong>
-                    <span className="chip">{item.format.toUpperCase()}</span>
-                    {item.lastOpened && (
-                      <span className="timestamp">
-                        {t('library.item.lastOpened', { time: item.lastOpened })}
-                      </span>
-                    )}
-                  </div>
-                  <div className="row-actions">
-                    <Link
-                      to={`/reader/${item.id}`}
-                      onClick={() => onOpen(item.id)}
-                      className="button"
-                    >
-                      {t('library.item.open')}
-                    </Link>
-                    <button onClick={() => onRemove(item.id)}>
-                      {t('library.item.remove')}
-                    </button>
-                  </div>
-                </li>
-              ))}
+              {filteredItems.map((item) => {
+                const progress = progressMap.get(item.id) ?? 0
+                return (
+                  <li key={item.id} className="book-row">
+                    <div>
+                      <strong>{item.title}</strong>
+                      <span className="chip">{item.format.toUpperCase()}</span>
+                      {progress > 0 ? (
+                        <span className="chip progress-chip">
+                          {t('library.item.progress', {
+                            percent: Math.round(progress * 100),
+                          })}
+                        </span>
+                      ) : null}
+                      {item.lastOpened && (
+                        <span className="timestamp">
+                          {t('library.item.lastOpened', { time: item.lastOpened })}
+                        </span>
+                      )}
+                    </div>
+                    <div className="row-actions">
+                      <Link
+                        to={`/reader/${item.id}`}
+                        onClick={() => onOpen(item.id)}
+                        className="button"
+                      >
+                        {t('library.item.open')}
+                      </Link>
+                      <button onClick={() => onRemove(item.id)}>
+                        {t('library.item.remove')}
+                      </button>
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </section>

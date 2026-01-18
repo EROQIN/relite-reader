@@ -348,6 +348,11 @@ a {
   margin-left: 0.5rem;
 }
 
+.progress-chip {
+  background: rgba(91, 84, 76, 0.12);
+  color: var(--ink-soft);
+}
+
 .tasks-panel-header {
   display: flex;
   justify-content: space-between;
