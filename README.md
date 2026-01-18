@@ -104,6 +104,12 @@ cd frontend
 npm test -- --run
 ```
 
+Optional (PostgreSQL store tests):
+```bash
+RELITE_TEST_DATABASE_URL="postgres://user:pass@localhost:5432/relite_test?sslmode=disable" \
+  GOCACHE=.cache/go-build go test ./...
+```
+
 ## API Summary
 
 Base URL: `/api`
