@@ -1,6 +1,6 @@
 # Relite Reader
 
-Relite Reader is a WebDAV‑backed reading app with a focused, customizable reader experience. It supports multi‑format reading (EPUB, PDF, MOBI, TXT, CBZ/CBR/CB7, AZW/AZW3, FB2, RTF, DOCX) with per‑user preferences, progress tracking, and a mobile‑friendly PWA shell.
+Relite Reader is a WebDAV‑backed reading app with a focused, customizable reader experience. It supports multi‑format reading (EPUB, PDF, MOBI, TXT, CBZ/CBR/CB7/CBT/CBA, AZW/AZW3/AZW4/KFX, FB2, RTF, DOCX, ODT, HTML/Markdown, DJVU, XPS, LIT, PDB) with per‑user preferences, progress tracking, and a mobile‑friendly PWA shell.
 
 ## Highlights
 - WebDAV library connections, background sync, and a lightweight task queue.
