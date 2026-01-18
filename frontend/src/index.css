@@ -637,6 +637,16 @@ a {
   overflow: auto;
 }
 
+.reader-pdf {
+  padding: 0;
+}
+
+.reader-pdf iframe {
+  width: 100%;
+  min-height: 70vh;
+  border: none;
+}
+
 .reader-page {
   display: grid;
   gap: 1.5rem;
