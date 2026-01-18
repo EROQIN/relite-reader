@@ -106,7 +106,14 @@ func main() {
 			tasksStore = tasksFile
 		}
 	}
-	webStore := webdav.NewMemoryStore()
+	var webStore webdav.Store = webdav.NewMemoryStore()
+	if pgPool != nil {
+		pgWeb := webdav.NewPostgresStore(pgPool)
+		if err := pgWeb.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		webStore = pgWeb
+	}
 	webClient := webdav.NewHTTPClient(http.DefaultClient)
 	queue := tasks.NewQueue(tasksStore, tasks.DefaultHandler, 200)
 	webSvc := webdav.NewService(webStore, webClient, key, bookStore, queue)
