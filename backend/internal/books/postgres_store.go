@@ -28,10 +28,12 @@ CREATE TABLE IF NOT EXISTS books (
   author TEXT NOT NULL DEFAULT '',
   format TEXT NOT NULL,
   source_path TEXT NOT NULL,
+  connection_id TEXT NOT NULL DEFAULT '',
   missing BOOLEAN NOT NULL DEFAULT FALSE,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (user_id, source_path)
 );
+ALTER TABLE books ADD COLUMN IF NOT EXISTS connection_id TEXT NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS idx_books_user_id ON books (user_id);
 `)
 	return err
@@ -46,18 +48,19 @@ func (s *PostgresStore) Upsert(userID string, book Book) (Book, error) {
 	book.Missing = false
 	book.UpdatedAt = time.Now().UTC()
 	err := s.pool.QueryRow(ctx, `
-INSERT INTO books (id, user_id, title, author, format, source_path, missing, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+INSERT INTO books (id, user_id, title, author, format, source_path, connection_id, missing, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 ON CONFLICT (user_id, source_path)
 DO UPDATE SET
   title = EXCLUDED.title,
   author = EXCLUDED.author,
   format = EXCLUDED.format,
+  connection_id = EXCLUDED.connection_id,
   missing = EXCLUDED.missing,
   updated_at = EXCLUDED.updated_at
-RETURNING id, user_id, title, author, format, source_path, missing, updated_at;`,
-		book.ID, book.UserID, book.Title, book.Author, book.Format, book.SourcePath, book.Missing, book.UpdatedAt,
-	).Scan(&book.ID, &book.UserID, &book.Title, &book.Author, &book.Format, &book.SourcePath, &book.Missing, &book.UpdatedAt)
+RETURNING id, user_id, title, author, format, source_path, connection_id, missing, updated_at;`,
+		book.ID, book.UserID, book.Title, book.Author, book.Format, book.SourcePath, book.ConnectionID, book.Missing, book.UpdatedAt,
+	).Scan(&book.ID, &book.UserID, &book.Title, &book.Author, &book.Format, &book.SourcePath, &book.ConnectionID, &book.Missing, &book.UpdatedAt)
 	if err != nil {
 		return Book{}, err
 	}
@@ -67,7 +70,7 @@ RETURNING id, user_id, title, author, format, source_path, missing, updated_at;`
 func (s *PostgresStore) ListByUser(userID string) ([]Book, error) {
 	ctx := context.Background()
 	rows, err := s.pool.Query(ctx, `
-SELECT id, user_id, title, author, format, source_path, missing, updated_at
+SELECT id, user_id, title, author, format, source_path, connection_id, missing, updated_at
 FROM books
 WHERE user_id = $1
 ORDER BY updated_at DESC;`,
@@ -80,7 +83,7 @@ ORDER BY updated_at DESC;`,
 	var out []Book
 	for rows.Next() {
 		var book Book
-		if err := rows.Scan(&book.ID, &book.UserID, &book.Title, &book.Author, &book.Format, &book.SourcePath, &book.Missing, &book.UpdatedAt); err != nil {
+		if err := rows.Scan(&book.ID, &book.UserID, &book.Title, &book.Author, &book.Format, &book.SourcePath, &book.ConnectionID, &book.Missing, &book.UpdatedAt); err != nil {
 			return nil, err
 		}
 		out = append(out, book)
@@ -95,11 +98,29 @@ func (s *PostgresStore) GetBySourcePath(userID, sourcePath string) (Book, error)
 	ctx := context.Background()
 	var book Book
 	err := s.pool.QueryRow(ctx, `
-SELECT id, user_id, title, author, format, source_path, missing, updated_at
+SELECT id, user_id, title, author, format, source_path, connection_id, missing, updated_at
 FROM books
 WHERE user_id = $1 AND source_path = $2;`,
 		userID, sourcePath,
-	).Scan(&book.ID, &book.UserID, &book.Title, &book.Author, &book.Format, &book.SourcePath, &book.Missing, &book.UpdatedAt)
+	).Scan(&book.ID, &book.UserID, &book.Title, &book.Author, &book.Format, &book.SourcePath, &book.ConnectionID, &book.Missing, &book.UpdatedAt)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return Book{}, ErrNotFound
+		}
+		return Book{}, err
+	}
+	return book, nil
+}
+
+func (s *PostgresStore) GetByID(userID, id string) (Book, error) {
+	ctx := context.Background()
+	var book Book
+	err := s.pool.QueryRow(ctx, `
+SELECT id, user_id, title, author, format, source_path, connection_id, missing, updated_at
+FROM books
+WHERE user_id = $1 AND id = $2;`,
+		userID, id,
+	).Scan(&book.ID, &book.UserID, &book.Title, &book.Author, &book.Format, &book.SourcePath, &book.ConnectionID, &book.Missing, &book.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return Book{}, ErrNotFound

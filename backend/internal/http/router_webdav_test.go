@@ -1,6 +1,7 @@
 package http_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,6 +21,10 @@ import (
 type noopClient struct{}
 
 func (noopClient) List(_, _, _ string) ([]webdav.Entry, error) { return nil, nil }
+
+func (noopClient) Fetch(_, _, _, _ string) (io.ReadCloser, string, error) {
+	return nil, "", nil
+}
 
 func TestRouterWithWebDAVRoutes(t *testing.T) {
 	store := users.NewMemoryStore()

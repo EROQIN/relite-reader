@@ -7,16 +7,20 @@ import TasksPanel from '../components/TasksPanel'
 
 interface Props {
   localItems: LibraryItem[]
+  remoteItems: LibraryItem[]
   onImport: (event: React.ChangeEvent<HTMLInputElement>) => void
   onRemove: (id: string) => void
   onOpen: (id: string) => void
+  onOpenRemote: (id: string) => void
 }
 
 export default function LibraryOptimized({
   localItems,
+  remoteItems,
   onImport,
   onRemove,
   onOpen,
+  onOpenRemote,
 }: Props) {
   const { t, locale } = useI18n()
   const [query, setQuery] = useState('')
@@ -64,6 +68,43 @@ export default function LibraryOptimized({
         <section className="panel">
           <h2>{t('library.webdav.title')}</h2>
           <p className="muted">{t('library.webdav.subtitle')}</p>
+          {remoteItems.length === 0 ? (
+            <p className="muted">{t('library.webdav.empty')}</p>
+          ) : (
+            <ul className="book-list">
+              {remoteItems.map((item) => (
+                <li key={item.id} className="book-row">
+                  <div>
+                    <strong>{item.title}</strong>
+                    <span className="chip">{item.format.toUpperCase()}</span>
+                    {item.missing ? (
+                      <span className="chip status-error">
+                        {t('library.webdav.missing')}
+                      </span>
+                    ) : null}
+                    {item.lastOpened && (
+                      <span className="timestamp">
+                        {t('library.item.lastOpened', {
+                          time: timestampFormatter.format(
+                            new Date(item.lastOpened)
+                          ),
+                        })}
+                      </span>
+                    )}
+                  </div>
+                  <div className="row-actions">
+                    <Link
+                      to={`/reader/${item.id}`}
+                      onClick={() => onOpenRemote(item.id)}
+                      className="button"
+                    >
+                      {t('library.item.open')}
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
         <section className="panel">
           <div className="library-local-header">

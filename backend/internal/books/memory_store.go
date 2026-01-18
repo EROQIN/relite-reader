@@ -44,6 +44,17 @@ func (s *MemoryStore) ListByUser(userID string) ([]Book, error) {
 	return out, nil
 }
 
+func (s *MemoryStore) GetByID(userID, id string) (Book, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, book := range s.items[userID] {
+		if book.ID == id {
+			return book, nil
+		}
+	}
+	return Book{}, ErrNotFound
+}
+
 func (s *MemoryStore) GetBySourcePath(userID, sourcePath string) (Book, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

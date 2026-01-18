@@ -10,6 +10,10 @@ vi.mock('../lib/library', () => ({
   loadLibrary: () => [],
 }))
 
+vi.mock('../lib/remoteLibrary', () => ({
+  loadRemoteLibrary: () => [],
+}))
+
 test('shows not found for missing book', () => {
   localStorage.setItem('relite.locale', 'zh-CN')
   render(

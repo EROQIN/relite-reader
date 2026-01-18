@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,6 +23,10 @@ import (
 type stubClient struct{ err error }
 
 func (s stubClient) List(_, _, _ string) ([]webdav.Entry, error) { return nil, s.err }
+
+func (s stubClient) Fetch(_, _, _, _ string) (io.ReadCloser, string, error) {
+	return nil, "", s.err
+}
 
 func TestWebDAVHandlersRequireAuth(t *testing.T) {
 	store := users.NewMemoryStore()

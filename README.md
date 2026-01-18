@@ -136,6 +136,8 @@ Base URL: `/api`
 ### Books
 - `GET /books`
   - Returns indexed books with `missing` flag.
+- `GET /books/{id}/content`
+  - Streams the book content for WebDAV-backed text formats.
 
 ### Preferences
 - `GET /preferences`

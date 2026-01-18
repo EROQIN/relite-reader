@@ -2,6 +2,7 @@ package webdav
 
 import (
 	"errors"
+	"io"
 	"path"
 	"strings"
 
@@ -89,7 +90,7 @@ func (s *Service) Sync(userID, id string) error {
 		present := make(map[string]struct{})
 		for _, entry := range entries {
 			present[entry.Path] = struct{}{}
-			_ = s.upsertBookFromEntry(userID, entry)
+			_ = s.upsertBookFromEntry(userID, id, entry)
 		}
 		missing := s.computeMissing(userID, present)
 		_ = s.books.MarkMissing(userID, missing)
@@ -112,7 +113,7 @@ func (s *Service) SyncAll() error {
 	return lastErr
 }
 
-func (s *Service) upsertBookFromEntry(userID string, entry Entry) error {
+func (s *Service) upsertBookFromEntry(userID, connectionID string, entry Entry) error {
 	if s.books == nil {
 		return nil
 	}
@@ -124,9 +125,10 @@ func (s *Service) upsertBookFromEntry(userID string, entry Entry) error {
 		format = strings.TrimPrefix(ext, ".")
 	}
 	book, err := s.books.Upsert(userID, books.Book{
-		Title:      title,
-		Format:     format,
-		SourcePath: entry.Path,
+		Title:        title,
+		Format:       format,
+		SourcePath:   entry.Path,
+		ConnectionID: connectionID,
 	})
 	if err != nil {
 		return err
@@ -156,4 +158,26 @@ func (s *Service) computeMissing(userID string, present map[string]struct{}) []s
 		}
 	}
 	return missing
+}
+
+func (s *Service) OpenContent(userID, bookID string) (io.ReadCloser, string, error) {
+	if s.books == nil {
+		return nil, "", errors.New("missing books store")
+	}
+	book, err := s.books.GetByID(userID, bookID)
+	if err != nil {
+		return nil, "", err
+	}
+	if book.ConnectionID == "" {
+		return nil, "", errors.New("missing connection")
+	}
+	conn, err := s.store.GetByID(userID, book.ConnectionID)
+	if err != nil {
+		return nil, "", err
+	}
+	secret, err := DecryptSecret(s.key, conn.EncryptedSecret)
+	if err != nil {
+		return nil, "", err
+	}
+	return s.client.Fetch(conn.BaseURL, conn.Username, secret, book.SourcePath)
 }

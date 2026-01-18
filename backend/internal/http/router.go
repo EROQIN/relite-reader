@@ -44,7 +44,7 @@ func NewRouterWithAuthAndWebDAV(
 	mux := http.NewServeMux()
 	authHandler := handlers.NewAuthHandler(svc, secret)
 	webHandler := handlers.NewWebDAVHandler(secret, webSvc)
-	booksHandler := handlers.NewBooksHandler(secret, booksStore)
+	booksHandler := handlers.NewBooksHandler(secret, booksStore, webSvc)
 	annotationsHandler := handlers.NewAnnotationsHandler(secret, annotationsStore)
 	bookmarksHandler := handlers.NewBookmarksHandler(secret, bookmarksStore)
 	prefsHandler := handlers.NewPreferencesHandler(secret, prefsStore)

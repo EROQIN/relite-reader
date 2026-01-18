@@ -198,3 +198,25 @@ func ensureTrailingSlash(p string) string {
 	}
 	return p + "/"
 }
+
+func (c *HTTPClient) Fetch(baseURL, username, secret, sourcePath string) (io.ReadCloser, string, error) {
+	parsed, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, "", err
+	}
+	target := parsed.Scheme + "://" + parsed.Host + sourcePath
+	req, err := http.NewRequest(http.MethodGet, target, nil)
+	if err != nil {
+		return nil, "", err
+	}
+	req.SetBasicAuth(username, secret)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, "", errors.New("unexpected status")
+	}
+	return resp.Body, resp.Header.Get("Content-Type"), nil
+}

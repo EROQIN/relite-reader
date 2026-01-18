@@ -1,6 +1,7 @@
 package webdav
 
 import (
+	"io"
 	"testing"
 
 	"github.com/EROQIN/relite-reader/backend/internal/books"
@@ -13,6 +14,10 @@ type fakeClient struct {
 
 func (f fakeClient) List(_ string, _ string, _ string) ([]Entry, error) {
 	return f.entries, f.err
+}
+
+func (f fakeClient) Fetch(_, _, _, _ string) (io.ReadCloser, string, error) {
+	return nil, "", f.err
 }
 
 func TestServiceCreateValidatesClient(t *testing.T) {

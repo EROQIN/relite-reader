@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { LibraryItem } from '../lib/library'
 import { calcProgress } from '../lib/progress'
 import { loadProgress, saveProgress } from '../lib/progressStore'
-import { loadText } from '../lib/textStore'
+import { loadText, saveText } from '../lib/textStore'
+import { fetchBookText } from '../lib/bookContentApi'
 import { createBookmark, deleteBookmark, fetchBookmarks } from '../lib/bookmarkApi'
 import { loadBookmarks, saveBookmarks } from '../lib/bookmarkStore'
 import {
@@ -29,7 +30,7 @@ export default function TxtReader({
   item: LibraryItem
   readingSpeed?: number
 }) {
-  const text = loadText(item.id)
+  const [text, setText] = useState(() => loadText(item.id))
   const [progress, setProgress] = useState(() => loadProgress(item.id))
   const scrollRef = useRef<HTMLDivElement>(null)
   const [token, setToken] = useState(() => getToken())
@@ -78,6 +79,24 @@ export default function TxtReader({
       window.removeEventListener('storage', handler)
     }
   }, [])
+
+  useEffect(() => {
+    setText(loadText(item.id))
+  }, [item.id])
+
+  useEffect(() => {
+    if (item.source !== 'webdav') return
+    if (!token || text) return
+    let active = true
+    void fetchBookText(item.id, token).then((remote) => {
+      if (!active || !remote) return
+      setText(remote)
+      saveText(item.id, remote)
+    })
+    return () => {
+      active = false
+    }
+  }, [item.id, item.source, token, text])
 
   useEffect(() => {
     hasUserScrolledRef.current = false

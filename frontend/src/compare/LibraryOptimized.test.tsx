@@ -11,9 +11,11 @@ test('renders optimized library hero', () => {
       <I18nProvider>
         <LibraryOptimized
           localItems={[]}
+          remoteItems={[]}
           onImport={noop}
           onRemove={noop}
           onOpen={noop}
+          onOpenRemote={noop}
         />
       </I18nProvider>
     </MemoryRouter>

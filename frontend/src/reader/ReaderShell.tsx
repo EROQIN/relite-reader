@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { loadLibrary } from '../lib/library'
+import { loadRemoteLibrary } from '../lib/remoteLibrary'
 import EpubReader from './EpubReader'
 import PdfReader from './PdfReader'
 import TxtReader from './TxtReader'
@@ -10,7 +11,11 @@ import { useI18n } from '../components/I18nProvider'
 
 export default function ReaderShell({ readingSpeed }: { readingSpeed?: number }) {
   const { bookId } = useParams()
-  const item = useMemo(() => loadLibrary().find((i) => i.id === bookId), [bookId])
+  const item = useMemo(() => {
+    const local = loadLibrary().find((i) => i.id === bookId)
+    if (local) return local
+    return loadRemoteLibrary().find((i) => i.id === bookId)
+  }, [bookId])
   const { t } = useI18n()
 
   if (!item) return <p className="muted">{t('reader.shell.notFound')}</p>

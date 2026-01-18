@@ -11,6 +11,14 @@ vi.mock('../lib/library', () => ({
   updateLastOpened: vi.fn(),
 }))
 
+vi.mock('../lib/authApi', () => ({
+  getToken: () => null,
+}))
+
+vi.mock('../lib/booksApi', () => ({
+  fetchBooks: vi.fn(),
+}))
+
 vi.mock('../lib/format', () => ({
   detectFormat: vi.fn(() => 'txt'),
 }))

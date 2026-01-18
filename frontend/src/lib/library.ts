@@ -11,6 +11,10 @@ export interface LibraryItem {
   source: LibrarySource
   fileName?: string
   lastOpened?: string
+  sourcePath?: string
+  connectionId?: string
+  missing?: boolean
+  updatedAt?: string
 }
 
 export function loadLibrary(): LibraryItem[] {

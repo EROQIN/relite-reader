@@ -23,7 +23,7 @@ type booksResponse struct {
 
 func TestBooksHandlerRequiresAuth(t *testing.T) {
 	store := books.NewMemoryStore()
-	h := handlers.NewBooksHandler([]byte("jwt"), store)
+	h := handlers.NewBooksHandler([]byte("jwt"), store, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/books", nil)
 	resp := httptest.NewRecorder()
 	h.ServeHTTP(resp, req)
@@ -44,7 +44,7 @@ func TestBooksHandlerListsBooks(t *testing.T) {
 	_, _ = store.Upsert(user.ID, books.Book{SourcePath: "/b.pdf", Title: "B", Format: "pdf"})
 	_ = store.MarkMissing(user.ID, []string{"/b.pdf"})
 
-	h := handlers.NewBooksHandler(secret, store)
+	h := handlers.NewBooksHandler(secret, store, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/books", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp := httptest.NewRecorder()
