@@ -6,6 +6,9 @@ dist/
 *.out
 go.work
 go.work.sum
+.gocache
+.gomodcache
+.gopath
 
 # Node/Vite
 node_modules/
