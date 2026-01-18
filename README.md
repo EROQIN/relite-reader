@@ -40,6 +40,9 @@ Progress automatically syncs to the backend when signed in.
 ### 4.5) Language
 Relite Reader auto-detects browser language on first load and lets you switch languages from the header. The selected locale is stored locally and synced to the server when signed in.
 
+### 4.6) Background tasks
+Unsupported formats are queued for background processing. You can review queued conversions in the library queue panel or visit `/tasks` for the full history.
+
 Quick actions:
 - Theme cycle, layout toggle, focus mode, and font size controls in the floating quick bar.
 - Keyboard shortcuts (press `?` in the reader to see all shortcuts).

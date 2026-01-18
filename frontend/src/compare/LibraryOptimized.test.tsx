@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { I18nProvider } from '../components/I18nProvider'
 import LibraryOptimized from './LibraryOptimized'
 
@@ -6,9 +7,16 @@ const noop = () => {}
 
 test('renders optimized library hero', () => {
   render(
-    <I18nProvider>
-      <LibraryOptimized localItems={[]} onImport={noop} onRemove={noop} />
-    </I18nProvider>
+    <MemoryRouter>
+      <I18nProvider>
+        <LibraryOptimized
+          localItems={[]}
+          onImport={noop}
+          onRemove={noop}
+          onOpen={noop}
+        />
+      </I18nProvider>
+    </MemoryRouter>
   )
 
   expect(screen.getByText('Curate your quiet library.')).toBeInTheDocument()

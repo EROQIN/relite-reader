@@ -215,6 +215,24 @@ a {
   gap: 2rem;
 }
 
+.tasks-page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.tasks-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.tasks-filter .button[aria-pressed='true'] {
+  background: var(--ink);
+  color: #fffaf5;
+  border-color: var(--ink);
+}
+
 .hero {
   display: flex;
   justify-content: space-between;
@@ -319,6 +337,12 @@ a {
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+}
+
+.tasks-panel-actions {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .tasks-list {

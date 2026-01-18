@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getToken } from '../lib/authApi'
 import { loadLibrary } from '../lib/library'
 import { TaskResponse, fetchTasks } from '../lib/tasksApi'
@@ -71,9 +72,14 @@ export default function TasksPanel() {
           <h2>{t('tasks.title')}</h2>
           <p className="muted">{t('tasks.subtitle')}</p>
         </div>
-        <button className="button" onClick={refresh} disabled={!token || loading}>
-          {loading ? t('tasks.refreshing') : t('tasks.refresh')}
-        </button>
+        <div className="tasks-panel-actions">
+          <Link className="button" to="/tasks">
+            {t('tasks.viewAll')}
+          </Link>
+          <button className="button" onClick={refresh} disabled={!token || loading}>
+            {loading ? t('tasks.refreshing') : t('tasks.refresh')}
+          </button>
+        </div>
       </div>
       {!token ? (
         <p className="muted">{t('tasks.auth')}</p>

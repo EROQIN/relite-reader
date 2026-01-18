@@ -10,8 +10,9 @@
 - [x] Add tasks API client in the frontend.
 - [x] Surface a compact queue panel in the library view with refresh control.
 - [x] Localize queue strings and statuses (EN + zh-CN).
-- [ ] Add a dedicated queue detail view for full history and error details.
-- [ ] Filter queue list by status and expose “retry” for failed conversions.
+- [x] Add a dedicated queue detail view for full history and error details.
+- [x] Filter queue list by status.
+- [ ] Expose “retry” for failed conversions.
 - [ ] Plug in a conversion worker stub for non-supported formats.
 
 ## Notes
