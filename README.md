@@ -27,6 +27,7 @@ Then trigger a sync to index your library.
 ### 3) Browse and Open Books
 - The library view lists books indexed from WebDAV.
 - Click a book to open the reader.
+- Use the search field to filter local imports by title, author, or format.
 
 ### 4) Customize the Reader
 Inside the reader settings panel you can:

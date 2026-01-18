@@ -316,6 +316,22 @@ a {
   background: #fffdf8;
 }
 
+.library-local-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.library-search {
+  min-width: 220px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.95rem;
+  background: #fffdf8;
+}
+
 .row-actions {
   display: inline-flex;
   gap: 0.5rem;
@@ -841,6 +857,15 @@ a {
   .hero {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .library-local-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .library-search {
+    width: 100%;
   }
 
   .pwa-banner {
