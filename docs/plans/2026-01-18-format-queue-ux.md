@@ -12,7 +12,7 @@
 - [x] Localize queue strings and statuses (EN + zh-CN).
 - [x] Add a dedicated queue detail view for full history and error details.
 - [x] Filter queue list by status.
-- [ ] Expose “retry” for failed conversions.
+- [x] Expose “retry” for failed conversions.
 - [ ] Plug in a conversion worker stub for non-supported formats.
 
 ## Notes

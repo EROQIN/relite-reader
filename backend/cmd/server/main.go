@@ -126,7 +126,7 @@ func main() {
 	queue.Start(ctx)
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore),
+		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore, queue),
 	}
 	log.Fatal(srv.ListenAndServe())
 }

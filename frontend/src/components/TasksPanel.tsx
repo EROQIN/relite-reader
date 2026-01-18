@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getToken } from '../lib/authApi'
 import { loadLibrary } from '../lib/library'
-import { TaskResponse, fetchTasks } from '../lib/tasksApi'
+import { TaskResponse, fetchTasks, retryTask } from '../lib/tasksApi'
 import { useI18n } from './I18nProvider'
 
 const statusClassMap: Record<string, string> = {
@@ -24,6 +24,7 @@ export default function TasksPanel() {
   const [tasks, setTasks] = useState<TaskResponse[]>([])
   const [loading, setLoading] = useState(false)
   const [hasError, setHasError] = useState(false)
+  const [retryingId, setRetryingId] = useState<string | null>(null)
   const { t } = useI18n()
 
   const titleMap = useMemo(() => {
@@ -62,6 +63,14 @@ export default function TasksPanel() {
     if (!token) return
     void refresh()
   }, [token])
+
+  const handleRetry = async (id: string) => {
+    if (!token) return
+    setRetryingId(id)
+    await retryTask(id, token)
+    setRetryingId(null)
+    await refresh()
+  }
 
   const visible = tasks.slice(0, 6)
 
@@ -106,19 +115,32 @@ export default function TasksPanel() {
                 : bookId
                   ? t('tasks.item.book', { id: bookId })
                   : ''
-            return (
-              <div className="task-row" key={task.id}>
-                <div className="task-meta">
-                  <strong>{headline}</strong>
-                  {detail ? <span className="muted">{detail}</span> : null}
-                  {task.error ? (
-                    <span className="muted">{task.error}</span>
-                  ) : null}
+              return (
+                <div className="task-row" key={task.id}>
+                  <div className="task-meta">
+                    <strong>{headline}</strong>
+                    {detail ? <span className="muted">{detail}</span> : null}
+                    {task.error ? (
+                      <span className="muted">{task.error}</span>
+                    ) : null}
+                  </div>
+                  <div className="task-actions">
+                    {task.status === 'error' ? (
+                      <button
+                        className="button"
+                        onClick={() => handleRetry(task.id)}
+                        disabled={retryingId === task.id}
+                      >
+                        {retryingId === task.id
+                          ? t('tasks.retrying')
+                          : t('tasks.retry')}
+                      </button>
+                    ) : null}
+                    <span className={`chip ${statusClass}`}>{t(statusKey)}</span>
+                  </div>
                 </div>
-                <span className={`chip ${statusClass}`}>{t(statusKey)}</span>
-              </div>
-            )
-          })}
+              )
+            })}
         </div>
       )}
     </section>

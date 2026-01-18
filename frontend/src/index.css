@@ -384,6 +384,12 @@ a {
   gap: 0.25rem;
 }
 
+.task-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .status-success {
   background: rgba(90, 148, 98, 0.18);
   color: #2b6b3f;

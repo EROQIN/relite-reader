@@ -167,6 +167,8 @@ Base URL: `/api`
 ### Tasks
 - `GET /tasks`
   - Returns the user's task queue entries and status.
+- `POST /tasks/{id}/retry`
+  - Re-queues a failed task and returns the new task.
 
 ## Project Notes
 - Users are stored in PostgreSQL when `RELITE_DATABASE_URL` is set.

@@ -28,7 +28,7 @@ func TestRouterWithBooksRoutes(t *testing.T) {
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
 	webSvc := webdav.NewService(webStore, noopClient{}, key, bookStore, nil)
 
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt"), webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt"), webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/books", nil)
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)

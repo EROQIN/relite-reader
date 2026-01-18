@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getToken } from '../lib/authApi'
 import { loadLibrary } from '../lib/library'
-import { TaskResponse, fetchTasks } from '../lib/tasksApi'
+import { TaskResponse, fetchTasks, retryTask } from '../lib/tasksApi'
 import { useI18n } from '../components/I18nProvider'
 
 const statusClassMap: Record<string, string> = {
@@ -26,6 +26,7 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(false)
   const [hasError, setHasError] = useState(false)
   const [filter, setFilter] = useState<FilterKey>('all')
+  const [retryingId, setRetryingId] = useState<string | null>(null)
   const { t } = useI18n()
 
   const titleMap = useMemo(() => {
@@ -64,6 +65,14 @@ export default function TasksPage() {
     if (!token) return
     void refresh()
   }, [token])
+
+  const handleRetry = async (id: string) => {
+    if (!token) return
+    setRetryingId(id)
+    await retryTask(id, token)
+    setRetryingId(null)
+    await refresh()
+  }
 
   const visible = filter === 'all' ? tasks : tasks.filter((task) => task.status === filter)
 
@@ -131,7 +140,20 @@ export default function TasksPage() {
                       <span className="muted">{task.error}</span>
                     ) : null}
                   </div>
-                  <span className={`chip ${statusClass}`}>{t(statusKey)}</span>
+                  <div className="task-actions">
+                    {task.status === 'error' ? (
+                      <button
+                        className="button"
+                        onClick={() => handleRetry(task.id)}
+                        disabled={retryingId === task.id}
+                      >
+                        {retryingId === task.id
+                          ? t('tasks.retrying')
+                          : t('tasks.retry')}
+                      </button>
+                    ) : null}
+                    <span className={`chip ${statusClass}`}>{t(statusKey)}</span>
+                  </div>
                 </div>
               )
             })}

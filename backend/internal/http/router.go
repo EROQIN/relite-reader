@@ -37,6 +37,7 @@ func NewRouterWithAuthAndWebDAV(
 	prefsStore preferences.Store,
 	progressStore progress.Store,
 	tasksStore tasks.Store,
+	queue *tasks.Queue,
 ) http.Handler {
 	mux := http.NewServeMux()
 	authHandler := handlers.NewAuthHandler(svc, secret)
@@ -45,7 +46,7 @@ func NewRouterWithAuthAndWebDAV(
 	bookmarksHandler := handlers.NewBookmarksHandler(secret, bookmarksStore)
 	prefsHandler := handlers.NewPreferencesHandler(secret, prefsStore)
 	progressHandler := handlers.NewProgressHandler(secret, progressStore)
-	tasksHandler := handlers.NewTasksHandler(secret, tasksStore)
+	tasksHandler := handlers.NewTasksHandler(secret, tasksStore, queue)
 	mux.HandleFunc("/api/health", handlers.Health)
 	mux.HandleFunc("/api/auth/register", authHandler.Register)
 	mux.HandleFunc("/api/auth/login", authHandler.Login)
@@ -56,5 +57,6 @@ func NewRouterWithAuthAndWebDAV(
 	mux.Handle("/api/preferences", prefsHandler)
 	mux.Handle("/api/progress/", progressHandler)
 	mux.Handle("/api/tasks", tasksHandler)
+	mux.Handle("/api/tasks/", tasksHandler)
 	return mux
 }
