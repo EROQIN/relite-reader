@@ -7,7 +7,7 @@ Relite Reader is a WebDAV‑backed reading app with a focused, customizable read
 - Reader customization: themes, fonts, font size, line height, page width, alignment, layout, focus mode.
 - Advanced options: custom backgrounds, brightness control, reading pace, time remaining, quick controls, keyboard shortcuts.
 - PWA install prompt for mobile.
-- Preferences and reading progress stored locally and optionally synced to backend when a JWT is available.
+- Preferences, reading progress, and bookmarks stored locally and optionally synced to backend when a JWT is available.
 - Supports additional formats with queued processing for renderers.
 
 ## Usage Manual
@@ -33,6 +33,7 @@ Inside the reader settings panel you can:
 - Change theme, font, size, line height, page width, alignment, layout.
 - Adjust reading pace (used for time remaining in TXT).
 - Set a custom background color or brightness.
+- Drop bookmarks as you read to jump back to key locations.
 Progress automatically syncs to the backend when signed in.
 
 Quick actions:
@@ -148,6 +149,12 @@ Base URL: `/api`
 - `PUT /progress/{bookId}`
   - Body: `{ "location": 0.42 }`
 
+### Bookmarks
+- `GET /bookmarks/{bookId}`
+- `POST /bookmarks/{bookId}`
+  - Body: `{ "label": "Chapter 3", "location": 0.42 }`
+- `DELETE /bookmarks/{bookId}/{id}`
+
 ### Tasks
 - `GET /tasks`
   - Returns the user's task queue entries and status.
@@ -155,4 +162,5 @@ Base URL: `/api`
 ## Project Notes
 - Users are stored in PostgreSQL when `RELITE_DATABASE_URL` is set.
 - Books/WebDAV connections are still in memory (replace with persistent stores when ready).
-- Preferences, progress, and task queue state can be persisted to disk via `RELITE_DATA_DIR`.
+- Preferences, progress, bookmarks, and task queue state can be persisted to disk via `RELITE_DATA_DIR`.
+- Progress and bookmarks use PostgreSQL when `RELITE_DATABASE_URL` is configured.

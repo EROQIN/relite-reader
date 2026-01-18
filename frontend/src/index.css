@@ -376,6 +376,44 @@ a {
   color: var(--ink-soft);
 }
 
+.reader-bookmarks {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.reader-bookmarks-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.reader-bookmarks-create {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+}
+
+.reader-bookmarks-create input {
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.85rem;
+  background: var(--bg-soft);
+}
+
+.reader-bookmarks-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.reader-bookmark-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .reader-scroll {
   max-height: 60vh;
   overflow: auto;
@@ -757,6 +795,11 @@ a {
 
   .reader-presets-create,
   .reader-preset-item {
+    grid-template-columns: 1fr;
+  }
+
+  .reader-bookmarks-create,
+  .reader-bookmark-row {
     grid-template-columns: 1fr;
   }
 

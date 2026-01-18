@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
+	"github.com/EROQIN/relite-reader/backend/internal/bookmarks"
 	"github.com/EROQIN/relite-reader/backend/internal/books"
 	apphttp "github.com/EROQIN/relite-reader/backend/internal/http"
 	"github.com/EROQIN/relite-reader/backend/internal/preferences"
@@ -16,6 +17,7 @@ import (
 	"github.com/EROQIN/relite-reader/backend/internal/tasks"
 	"github.com/EROQIN/relite-reader/backend/internal/users"
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func main() {
@@ -28,6 +30,7 @@ func main() {
 		log.Fatal("invalid RELITE_WEB_DAV_KEY")
 	}
 	var userStore users.Store = users.NewMemoryStore()
+	var pgPool *pgxpool.Pool
 	if dsn := os.Getenv("RELITE_DATABASE_URL"); dsn != "" {
 		pgStore, err := users.NewPostgresStore(context.Background(), dsn)
 		if err != nil {
@@ -38,12 +41,26 @@ func main() {
 		}
 		defer pgStore.Close()
 		userStore = pgStore
+		pgPool = pgStore.Pool()
 	}
 	authSvc := auth.NewService(userStore)
 	bookStore := books.NewMemoryStore()
+	var bookmarksStore bookmarks.Store = bookmarks.NewMemoryStore()
 	var prefsStore preferences.Store = preferences.NewMemoryStore()
 	var progressStore progress.Store = progress.NewMemoryStore()
 	var tasksStore tasks.Store = tasks.NewMemoryStore()
+	if pgPool != nil {
+		pgProgress := progress.NewPostgresStore(pgPool)
+		if err := pgProgress.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		progressStore = pgProgress
+		pgBookmarks := bookmarks.NewPostgresStore(pgPool)
+		if err := pgBookmarks.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		bookmarksStore = pgBookmarks
+	}
 	if dataDir := os.Getenv("RELITE_DATA_DIR"); dataDir != "" {
 		path := filepath.Join(dataDir, "preferences.json")
 		if err := preferences.EnsureDir(path); err != nil {
@@ -62,7 +79,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		progressStore = progressFile
+		if pgPool == nil {
+			progressStore = progressFile
+		}
 		tasksPath := filepath.Join(dataDir, "tasks.json")
 		if err := tasks.EnsureDir(tasksPath); err != nil {
 			log.Fatal(err)
@@ -93,7 +112,7 @@ func main() {
 	queue.Start(ctx)
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore, progressStore, tasksStore),
+		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore),
 	}
 	log.Fatal(srv.ListenAndServe())
 }

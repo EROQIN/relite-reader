@@ -31,6 +31,10 @@ func (s *PostgresStore) Close() {
 	s.pool.Close()
 }
 
+func (s *PostgresStore) Pool() *pgxpool.Pool {
+	return s.pool
+}
+
 func (s *PostgresStore) EnsureSchema(ctx context.Context) error {
 	_, err := s.pool.Exec(ctx, `
 CREATE TABLE IF NOT EXISTS users (
@@ -38,7 +42,9 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);`)
+);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users (email);
+`)
 	return err
 }
 
