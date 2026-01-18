@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/EROQIN/relite-reader/backend/internal/webdav"
 )
@@ -25,6 +26,7 @@ type webdavResponse struct {
 	Username       string `json:"username"`
 	LastSyncStatus string `json:"last_sync_status"`
 	LastError      string `json:"last_error"`
+	LastSyncAt     string `json:"last_sync_at"`
 }
 
 func NewWebDAVHandler(secret []byte, svc *webdav.Service) *WebDAVHandler {
@@ -120,11 +122,16 @@ func (h *WebDAVHandler) handleItem(w http.ResponseWriter, r *http.Request, userI
 }
 
 func toWebDAVResponse(conn webdav.Connection) webdavResponse {
+	lastSyncAt := ""
+	if !conn.LastSyncAt.IsZero() {
+		lastSyncAt = conn.LastSyncAt.UTC().Format(time.RFC3339)
+	}
 	return webdavResponse{
 		ID:             conn.ID,
 		BaseURL:        conn.BaseURL,
 		Username:       conn.Username,
 		LastSyncStatus: conn.LastSyncStatus,
 		LastError:      conn.LastError,
+		LastSyncAt:     lastSyncAt,
 	}
 }

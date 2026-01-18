@@ -25,7 +25,7 @@ export default function WebDavPage() {
   const [message, setMessage] = useState('')
   const [form, setForm] = useState<WebDavPayload>(emptyForm)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
 
   const canSubmit = useMemo(
     () => Boolean(form.base_url && form.username && form.secret),
@@ -37,6 +37,13 @@ export default function WebDavPage() {
     const translated = t(key)
     return translated === key ? value : translated
   }
+
+  const timestampFormatter = useMemo(() => {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    })
+  }, [locale])
 
   useEffect(() => {
     const handler = () => setToken(getToken())
@@ -215,6 +222,13 @@ export default function WebDavPage() {
                 <span className={`chip status-${item.last_sync_status || 'idle'}`}>
                   {statusLabel(item.last_sync_status || 'idle')}
                 </span>
+                {item.last_sync_at ? (
+                  <p className="muted">
+                    {t('webdav.list.lastSync', {
+                      time: timestampFormatter.format(new Date(item.last_sync_at)),
+                    })}
+                  </p>
+                ) : null}
                 {item.last_error && (
                   <p className="muted webdav-error">{item.last_error}</p>
                 )}

@@ -6,6 +6,7 @@ export type WebDavConnection = {
   username: string
   last_sync_status: string
   last_error: string
+  last_sync_at?: string
 }
 
 export type WebDavPayload = {
