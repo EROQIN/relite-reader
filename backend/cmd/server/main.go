@@ -50,6 +50,11 @@ func main() {
 	var progressStore progress.Store = progress.NewMemoryStore()
 	var tasksStore tasks.Store = tasks.NewMemoryStore()
 	if pgPool != nil {
+		pgPrefs := preferences.NewPostgresStore(pgPool)
+		if err := pgPrefs.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		prefsStore = pgPrefs
 		pgProgress := progress.NewPostgresStore(pgPool)
 		if err := pgProgress.EnsureSchema(context.Background()); err != nil {
 			log.Fatal(err)
@@ -60,6 +65,11 @@ func main() {
 			log.Fatal(err)
 		}
 		bookmarksStore = pgBookmarks
+		pgTasks := tasks.NewPostgresStore(pgPool)
+		if err := pgTasks.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		tasksStore = pgTasks
 	}
 	if dataDir := os.Getenv("RELITE_DATA_DIR"); dataDir != "" {
 		path := filepath.Join(dataDir, "preferences.json")
@@ -70,7 +80,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		prefsStore = fileStore
+		if pgPool == nil {
+			prefsStore = fileStore
+		}
 		progressPath := filepath.Join(dataDir, "progress.json")
 		if err := progress.EnsureDir(progressPath); err != nil {
 			log.Fatal(err)
@@ -90,7 +102,9 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		tasksStore = tasksFile
+		if pgPool == nil {
+			tasksStore = tasksFile
+		}
 	}
 	webStore := webdav.NewMemoryStore()
 	webClient := webdav.NewHTTPClient(http.DefaultClient)

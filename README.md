@@ -68,10 +68,10 @@ go build -o relite-server ./cmd/server
 ```
 
 Notes:
-- `RELITE_DATA_DIR` is optional; when set, preferences persist to `preferences.json` under the directory.
-- Reading progress persists to `progress.json` when `RELITE_DATA_DIR` is set.
+- `RELITE_DATA_DIR` is optional; when set without PostgreSQL configured, preferences persist to `preferences.json` under the directory.
+- Reading progress persists to `progress.json` when `RELITE_DATA_DIR` is set and PostgreSQL is not configured.
 - WebDAV secrets are encrypted with `RELITE_WEB_DAV_KEY` (hex‑encoded 32‑byte key).
-- Task queue state persists to `tasks.json` when `RELITE_DATA_DIR` is set.
+- Task queue state persists to `tasks.json` when `RELITE_DATA_DIR` is set and PostgreSQL is not configured.
 - Users are stored in PostgreSQL when `RELITE_DATABASE_URL` is configured (schema auto-creates).
 
 ### Frontend (Vite)
@@ -168,5 +168,5 @@ Base URL: `/api`
 - Users are stored in PostgreSQL when `RELITE_DATABASE_URL` is set.
 - Books/WebDAV connections are still in memory (replace with persistent stores when ready).
 - Preferences, progress, bookmarks, and task queue state can be persisted to disk via `RELITE_DATA_DIR`.
-- Progress and bookmarks use PostgreSQL when `RELITE_DATABASE_URL` is configured.
+- Preferences, progress, bookmarks, and tasks use PostgreSQL when `RELITE_DATABASE_URL` is configured.
 - Locale is stored alongside preferences and is sent as `locale` in the preferences payload.
