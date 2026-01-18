@@ -36,6 +36,7 @@ Inside the reader settings panel you can:
 - Adjust reading pace (used for time remaining in TXT).
 - Set a custom background color or brightness.
 - Drop bookmarks as you read to jump back to key locations.
+- Capture highlights and notes, then export them as JSON.
 Progress automatically syncs to the backend when signed in.
 
 ### 4.5) Language
