@@ -42,6 +42,9 @@ export default function TxtReader({
   const [annotations, setAnnotations] = useState<Annotation[]>(() =>
     loadAnnotations(item.id)
   )
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchMatches, setSearchMatches] = useState<number[]>([])
+  const [searchIndex, setSearchIndex] = useState(0)
   const pendingScrollRef = useRef<number | null>(null)
   const hasUserScrolledRef = useRef(false)
   const { t } = useI18n()
@@ -50,6 +53,27 @@ export default function TxtReader({
     if (!text) return 0
     return text.trim().split(/\s+/).filter(Boolean).length
   }, [text])
+
+  useEffect(() => {
+    if (!searchQuery.trim() || !text) {
+      setSearchMatches([])
+      setSearchIndex(0)
+      return
+    }
+    const needle = searchQuery.toLowerCase()
+    const haystack = text.toLowerCase()
+    const matches: number[] = []
+    let idx = 0
+    const maxMatches = 200
+    while (matches.length < maxMatches) {
+      const found = haystack.indexOf(needle, idx)
+      if (found === -1) break
+      matches.push(found)
+      idx = found + needle.length
+    }
+    setSearchMatches(matches)
+    setSearchIndex(0)
+  }, [searchQuery, text])
 
   const totalMinutes = useMemo(() => {
     if (!wordCount || readingSpeed <= 0) return null
@@ -325,6 +349,14 @@ export default function TxtReader({
     URL.revokeObjectURL(url)
   }
 
+  const goToMatch = (index: number) => {
+    if (!text || searchMatches.length === 0) return
+    const nextIndex = (index + searchMatches.length) % searchMatches.length
+    setSearchIndex(nextIndex)
+    const location = searchMatches[nextIndex] / text.length
+    jumpTo(location)
+  }
+
   return (
     <div className="reader-frame">
       <div className="reader-meta">
@@ -351,6 +383,43 @@ export default function TxtReader({
           <span>0%</span>
           <span>{Math.round(progress * 100)}%</span>
           <span>100%</span>
+        </div>
+      </div>
+      <div className="reader-search">
+        <input
+          type="search"
+          placeholder={t('reader.search.placeholder')}
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          aria-label={t('reader.search.label')}
+        />
+        <div className="reader-search-meta">
+          {searchMatches.length === 0 && searchQuery.trim() ? (
+            <span className="muted">{t('reader.search.empty')}</span>
+          ) : (
+            <span className="muted">
+              {t('reader.search.count', {
+                current: searchMatches.length ? searchIndex + 1 : 0,
+                total: searchMatches.length,
+              })}
+            </span>
+          )}
+          <div className="reader-search-actions">
+            <button
+              className="button"
+              onClick={() => goToMatch(searchIndex - 1)}
+              disabled={searchMatches.length === 0}
+            >
+              {t('reader.search.prev')}
+            </button>
+            <button
+              className="button"
+              onClick={() => goToMatch(searchIndex + 1)}
+              disabled={searchMatches.length === 0}
+            >
+              {t('reader.search.next')}
+            </button>
+          </div>
         </div>
       </div>
       <div className="reader-bookmarks">

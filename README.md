@@ -37,6 +37,7 @@ Inside the reader settings panel you can:
 - Set a custom background color or brightness.
 - Drop bookmarks as you read to jump back to key locations.
 - Capture highlights and notes, then export them as JSON.
+- Search within text-based books to jump between matches.
 Progress automatically syncs to the backend when signed in.
 
 ### 4.5) Language

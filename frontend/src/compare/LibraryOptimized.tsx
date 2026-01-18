@@ -38,6 +38,20 @@ export default function LibraryOptimized({
       )
     })
   }, [localItems, query])
+  const filteredRemoteItems = useMemo(() => {
+    if (!query.trim()) return remoteItems
+    const needle = query.trim().toLowerCase()
+    return remoteItems.filter((item) => {
+      const title = item.title.toLowerCase()
+      const author = item.author?.toLowerCase() ?? ''
+      const format = item.format.toLowerCase()
+      return (
+        title.includes(needle) ||
+        author.includes(needle) ||
+        format.includes(needle)
+      )
+    })
+  }, [remoteItems, query])
   const progressMap = useMemo(() => {
     const map = new Map<string, number>()
     for (const item of localItems) {
@@ -68,11 +82,15 @@ export default function LibraryOptimized({
         <section className="panel">
           <h2>{t('library.webdav.title')}</h2>
           <p className="muted">{t('library.webdav.subtitle')}</p>
-          {remoteItems.length === 0 ? (
-            <p className="muted">{t('library.webdav.empty')}</p>
+          {filteredRemoteItems.length === 0 ? (
+            <p className="muted">
+              {query.trim()
+                ? t('library.webdav.emptySearch')
+                : t('library.webdav.empty')}
+            </p>
           ) : (
             <ul className="book-list">
-              {remoteItems.map((item) => (
+              {filteredRemoteItems.map((item) => (
                 <li key={item.id} className="book-row">
                   <div>
                     <strong>{item.title}</strong>
