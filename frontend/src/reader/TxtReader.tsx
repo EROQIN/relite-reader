@@ -25,6 +25,8 @@ export default function TxtReader({
   const [token, setToken] = useState(() => getToken())
   const [bookmarkLabel, setBookmarkLabel] = useState('')
   const [bookmarks, setBookmarks] = useState(() => loadBookmarks(item.id))
+  const pendingScrollRef = useRef<number | null>(null)
+  const hasUserScrolledRef = useRef(false)
   const { t } = useI18n()
 
   const wordCount = useMemo(() => {
@@ -44,6 +46,8 @@ export default function TxtReader({
 
   const onScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget
+    hasUserScrolledRef.current = true
+    pendingScrollRef.current = null
     const next = calcProgress(target.scrollTop, target.scrollHeight, target.clientHeight)
     setProgress(next)
     saveProgress(item.id, next)
@@ -60,6 +64,29 @@ export default function TxtReader({
   }, [])
 
   useEffect(() => {
+    hasUserScrolledRef.current = false
+    pendingScrollRef.current = progress
+  }, [item.id])
+
+  const applyScroll = (location: number) => {
+    const target = scrollRef.current
+    if (!target) {
+      pendingScrollRef.current = location
+      return
+    }
+    const maxScroll = target.scrollHeight - target.clientHeight
+    target.scrollTop = maxScroll * location
+  }
+
+  useEffect(() => {
+    if (!text) return
+    if (pendingScrollRef.current !== null) {
+      applyScroll(pendingScrollRef.current)
+      pendingScrollRef.current = null
+    }
+  }, [text])
+
+  useEffect(() => {
     if (!token) return
     let active = true
     void fetchProgress(item.id, token).then((remote) => {
@@ -68,6 +95,9 @@ export default function TxtReader({
       if (next !== progress) {
         setProgress(next)
         saveProgress(item.id, next)
+        if (!hasUserScrolledRef.current) {
+          applyScroll(next)
+        }
       }
     })
     return () => {
@@ -103,6 +133,8 @@ export default function TxtReader({
   }, [token, item.id])
 
   const onScrub = (event: React.ChangeEvent<HTMLInputElement>) => {
+    hasUserScrolledRef.current = true
+    pendingScrollRef.current = null
     const next = clamp(Number(event.target.value) / 100, 0, 1)
     const target = scrollRef.current
     if (target) {
@@ -114,6 +146,8 @@ export default function TxtReader({
   }
 
   const jumpTo = (location: number) => {
+    hasUserScrolledRef.current = true
+    pendingScrollRef.current = null
     const target = scrollRef.current
     if (target) {
       const maxScroll = target.scrollHeight - target.clientHeight
