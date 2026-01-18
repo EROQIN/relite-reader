@@ -68,6 +68,18 @@ export const readerPresets: ReaderPreset[] = [
     label: 'Mist Daylight',
     prefs: { ...defaultReaderPrefs, theme: 'mist', font: 'sans', fontSize: 18 },
   },
+  {
+    id: 'comfort',
+    label: 'Comfort Plus',
+    prefs: {
+      ...defaultReaderPrefs,
+      theme: 'paper',
+      font: 'sans',
+      fontSize: 20,
+      lineHeight: 2,
+      pageWidth: 760,
+    },
+  },
 ]
 
 const normalizePrefs = (prefs: Partial<ReaderPrefs> | null | undefined): ReaderPrefs => {
