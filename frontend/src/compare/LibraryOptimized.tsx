@@ -82,11 +82,11 @@ export default function LibraryOptimized({
   }, [filteredRemoteItems, hideMissing, sortKey])
   const progressMap = useMemo(() => {
     const map = new Map<string, number>()
-    for (const item of localItems) {
+    for (const item of [...localItems, ...remoteItems]) {
       map.set(item.id, loadProgress(item.id))
     }
     return map
-  }, [localItems])
+  }, [localItems, remoteItems])
   const timestampFormatter = useMemo(() => {
     return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : locale, {
       dateStyle: 'medium',
@@ -133,6 +133,13 @@ export default function LibraryOptimized({
                   <div>
                     <strong>{item.title}</strong>
                     <span className="chip">{item.format.toUpperCase()}</span>
+                    {progressMap.get(item.id) ? (
+                      <span className="chip progress-chip">
+                        {t('library.item.progress', {
+                          percent: Math.round((progressMap.get(item.id) ?? 0) * 100),
+                        })}
+                      </span>
+                    ) : null}
                     {item.missing ? (
                       <span className="chip status-error">
                         {t('library.webdav.missing')}
