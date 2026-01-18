@@ -11,6 +11,21 @@ vi.mock('../lib/progressStore', () => ({
   saveProgress: vi.fn(),
 }))
 
+vi.mock('../lib/bookmarkApi', () => ({
+  fetchBookmarks: vi.fn().mockResolvedValue([]),
+  createBookmark: vi.fn(),
+  deleteBookmark: vi.fn(),
+}))
+
+vi.mock('../lib/bookmarkStore', () => ({
+  loadBookmarks: () => [],
+  saveBookmarks: vi.fn(),
+}))
+
+vi.mock('../lib/authApi', () => ({
+  getToken: () => null,
+}))
+
 const renderWithLocale = () => {
   localStorage.setItem('relite.locale', 'zh-CN')
   render(

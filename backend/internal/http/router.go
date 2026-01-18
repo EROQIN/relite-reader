@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
+	"github.com/EROQIN/relite-reader/backend/internal/bookmarks"
 	"github.com/EROQIN/relite-reader/backend/internal/books"
 	"github.com/EROQIN/relite-reader/backend/internal/http/handlers"
 	"github.com/EROQIN/relite-reader/backend/internal/preferences"
@@ -32,6 +33,7 @@ func NewRouterWithAuthAndWebDAV(
 	secret []byte,
 	webSvc *webdav.Service,
 	booksStore books.Store,
+	bookmarksStore bookmarks.Store,
 	prefsStore preferences.Store,
 	progressStore progress.Store,
 	tasksStore tasks.Store,
@@ -40,6 +42,7 @@ func NewRouterWithAuthAndWebDAV(
 	authHandler := handlers.NewAuthHandler(svc, secret)
 	webHandler := handlers.NewWebDAVHandler(secret, webSvc)
 	booksHandler := handlers.NewBooksHandler(secret, booksStore)
+	bookmarksHandler := handlers.NewBookmarksHandler(secret, bookmarksStore)
 	prefsHandler := handlers.NewPreferencesHandler(secret, prefsStore)
 	progressHandler := handlers.NewProgressHandler(secret, progressStore)
 	tasksHandler := handlers.NewTasksHandler(secret, tasksStore)
@@ -49,6 +52,7 @@ func NewRouterWithAuthAndWebDAV(
 	mux.Handle("/api/webdav", webHandler)
 	mux.Handle("/api/webdav/", webHandler)
 	mux.Handle("/api/books", booksHandler)
+	mux.Handle("/api/bookmarks/", bookmarksHandler)
 	mux.Handle("/api/preferences", prefsHandler)
 	mux.Handle("/api/progress/", progressHandler)
 	mux.Handle("/api/tasks", tasksHandler)

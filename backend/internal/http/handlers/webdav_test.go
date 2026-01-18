@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
+	"github.com/EROQIN/relite-reader/backend/internal/bookmarks"
 	"github.com/EROQIN/relite-reader/backend/internal/books"
 	apphttp "github.com/EROQIN/relite-reader/backend/internal/http"
 	"github.com/EROQIN/relite-reader/backend/internal/preferences"
@@ -26,12 +27,13 @@ func TestWebDAVHandlersRequireAuth(t *testing.T) {
 	authSvc := auth.NewService(store)
 	webStore := webdav.NewMemoryStore()
 	bookStore := books.NewMemoryStore()
+	bookmarksStore := bookmarks.NewMemoryStore()
 	prefsStore := preferences.NewMemoryStore()
 	progressStore := progress.NewMemoryStore()
 	tasksStore := tasks.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
 	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore, nil)
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt-secret"), webSvc, bookStore, prefsStore, progressStore, tasksStore)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt-secret"), webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/webdav", nil)
 	resp := httptest.NewRecorder()
@@ -50,12 +52,13 @@ func TestWebDAVCreateAndList(t *testing.T) {
 
 	webStore := webdav.NewMemoryStore()
 	bookStore := books.NewMemoryStore()
+	bookmarksStore := bookmarks.NewMemoryStore()
 	prefsStore := preferences.NewMemoryStore()
 	progressStore := progress.NewMemoryStore()
 	tasksStore := tasks.NewMemoryStore()
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
 	webSvc := webdav.NewService(webStore, stubClient{err: nil}, key, bookStore, nil)
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, prefsStore, progressStore, tasksStore)
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore)
 
 	payload := map[string]string{"base_url": "https://dav.example.com", "username": "reader", "secret": "pw"}
 	body, _ := json.Marshal(payload)
