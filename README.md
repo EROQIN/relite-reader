@@ -171,8 +171,7 @@ Base URL: `/api`
   - Re-queues a failed task and returns the new task.
 
 ## Project Notes
-- Users and WebDAV connections are stored in PostgreSQL when `RELITE_DATABASE_URL` is set.
-- Books are still in memory (replace with persistent stores when ready).
+- Users, WebDAV connections, and books are stored in PostgreSQL when `RELITE_DATABASE_URL` is set.
 - Preferences, progress, bookmarks, and task queue state can be persisted to disk via `RELITE_DATA_DIR`.
 - Preferences, progress, bookmarks, and tasks use PostgreSQL when `RELITE_DATABASE_URL` is configured.
 - Locale is stored alongside preferences and is sent as `locale` in the preferences payload.

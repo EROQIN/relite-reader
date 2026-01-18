@@ -44,12 +44,17 @@ func main() {
 		pgPool = pgStore.Pool()
 	}
 	authSvc := auth.NewService(userStore)
-	bookStore := books.NewMemoryStore()
+	var bookStore books.Store = books.NewMemoryStore()
 	var bookmarksStore bookmarks.Store = bookmarks.NewMemoryStore()
 	var prefsStore preferences.Store = preferences.NewMemoryStore()
 	var progressStore progress.Store = progress.NewMemoryStore()
 	var tasksStore tasks.Store = tasks.NewMemoryStore()
 	if pgPool != nil {
+		pgBooks := books.NewPostgresStore(pgPool)
+		if err := pgBooks.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		bookStore = pgBooks
 		pgPrefs := preferences.NewPostgresStore(pgPool)
 		if err := pgPrefs.EnsureSchema(context.Background()); err != nil {
 			log.Fatal(err)
