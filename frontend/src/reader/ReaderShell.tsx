@@ -22,6 +22,11 @@ export default function ReaderShell({ readingSpeed }: { readingSpeed?: number })
       return <PdfReader item={item} />
     case 'txt':
       return <TxtReader item={item} readingSpeed={readingSpeed} />
+    case 'md':
+    case 'markdown':
+    case 'html':
+    case 'htm':
+      return <TxtReader item={item} readingSpeed={readingSpeed} />
     case 'mobi':
       return <MobiReader item={item} />
     case 'cbz':

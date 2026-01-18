@@ -10,7 +10,7 @@
 - [x] Extend frontend format detection and types.
 - [x] Add localized placeholders for new formats.
 - [x] Update docs and tests.
-- [ ] Map select formats to richer readers (markdown/html rendering).
+- [x] Map select formats to readers (basic text rendering for markdown/html).
 - [ ] Add conversion worker for queued formats (kfx/azw4/djvu/xps).
 
 ## Notes

@@ -14,6 +14,15 @@ export default function LibraryPage() {
 
   const localItems = useMemo(() => items.filter((i) => i.source === 'local'), [items])
 
+  const normalizeHtml = (raw: string) => {
+    try {
+      const doc = new DOMParser().parseFromString(raw, 'text/html')
+      return doc.body?.textContent ?? raw
+    } catch {
+      return raw.replace(/<[^>]*>/g, ' ')
+    }
+  }
+
   const onImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? [])
     const next = [...items]
@@ -31,9 +40,13 @@ export default function LibraryPage() {
         fileName: file.name,
       }
 
-      if (format === 'txt') {
+      if (format === 'txt' || format === 'md' || format === 'markdown') {
         const text = await file.text()
         saveText(id, text)
+      }
+      if (format === 'html' || format === 'htm') {
+        const text = await file.text()
+        saveText(id, normalizeHtml(text))
       }
 
       upsertLibraryItem(item)
