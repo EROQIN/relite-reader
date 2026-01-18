@@ -24,6 +24,8 @@ export default function LibraryOptimized({
 }: Props) {
   const { t, locale } = useI18n()
   const [query, setQuery] = useState('')
+  const [sortKey, setSortKey] = useState<'recent' | 'title'>('recent')
+  const [hideMissing, setHideMissing] = useState(false)
   const filteredItems = useMemo(() => {
     if (!query.trim()) return localItems
     const needle = query.trim().toLowerCase()
@@ -38,6 +40,19 @@ export default function LibraryOptimized({
       )
     })
   }, [localItems, query])
+  const sortedLocalItems = useMemo(() => {
+    const items = [...filteredItems]
+    if (sortKey === 'title') {
+      items.sort((a, b) => a.title.localeCompare(b.title))
+      return items
+    }
+    items.sort((a, b) => {
+      const aTime = a.lastOpened ? new Date(a.lastOpened).getTime() : 0
+      const bTime = b.lastOpened ? new Date(b.lastOpened).getTime() : 0
+      return bTime - aTime
+    })
+    return items
+  }, [filteredItems, sortKey])
   const filteredRemoteItems = useMemo(() => {
     if (!query.trim()) return remoteItems
     const needle = query.trim().toLowerCase()
@@ -52,6 +67,19 @@ export default function LibraryOptimized({
       )
     })
   }, [remoteItems, query])
+  const sortedRemoteItems = useMemo(() => {
+    const items = hideMissing ? filteredRemoteItems.filter((item) => !item.missing) : [...filteredRemoteItems]
+    if (sortKey === 'title') {
+      items.sort((a, b) => a.title.localeCompare(b.title))
+      return items
+    }
+    items.sort((a, b) => {
+      const aTime = a.lastOpened ? new Date(a.lastOpened).getTime() : 0
+      const bTime = b.lastOpened ? new Date(b.lastOpened).getTime() : 0
+      return bTime - aTime
+    })
+    return items
+  }, [filteredRemoteItems, hideMissing, sortKey])
   const progressMap = useMemo(() => {
     const map = new Map<string, number>()
     for (const item of localItems) {
@@ -82,7 +110,17 @@ export default function LibraryOptimized({
         <section className="panel">
           <h2>{t('library.webdav.title')}</h2>
           <p className="muted">{t('library.webdav.subtitle')}</p>
-          {filteredRemoteItems.length === 0 ? (
+          <div className="library-webdav-controls">
+            <label className="checkbox">
+              <input
+                type="checkbox"
+                checked={hideMissing}
+                onChange={(event) => setHideMissing(event.target.checked)}
+              />
+              {t('library.webdav.hideMissing')}
+            </label>
+          </div>
+          {sortedRemoteItems.length === 0 ? (
             <p className="muted">
               {query.trim()
                 ? t('library.webdav.emptySearch')
@@ -90,7 +128,7 @@ export default function LibraryOptimized({
             </p>
           ) : (
             <ul className="book-list">
-              {filteredRemoteItems.map((item) => (
+              {sortedRemoteItems.map((item) => (
                 <li key={item.id} className="book-row">
                   <div>
                     <strong>{item.title}</strong>
@@ -139,7 +177,16 @@ export default function LibraryOptimized({
               aria-label={t('library.search.label')}
             />
           </div>
-          {filteredItems.length === 0 ? (
+          <div className="library-local-controls">
+            <label className="field">
+              {t('library.sort.label')}
+              <select value={sortKey} onChange={(event) => setSortKey(event.target.value as 'recent' | 'title')}>
+                <option value="recent">{t('library.sort.recent')}</option>
+                <option value="title">{t('library.sort.title')}</option>
+              </select>
+            </label>
+          </div>
+          {sortedLocalItems.length === 0 ? (
             <p className="muted">
               {query.trim()
                 ? t('library.local.emptySearch')
@@ -147,7 +194,7 @@ export default function LibraryOptimized({
             </p>
           ) : (
             <ul className="book-list">
-              {filteredItems.map((item) => {
+              {sortedLocalItems.map((item) => {
                 const progress = progressMap.get(item.id) ?? 0
                 return (
                   <li key={item.id} className="book-row">

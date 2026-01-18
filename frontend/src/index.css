@@ -323,6 +323,25 @@ a {
   gap: 1rem;
 }
 
+.library-local-controls,
+.library-webdav-controls {
+  margin-top: 0.75rem;
+}
+
+.library-local-controls .field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.library-webdav-controls .checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
 .library-search {
   min-width: 220px;
   border-radius: 12px;
