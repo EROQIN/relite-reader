@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	"github.com/EROQIN/relite-reader/backend/internal/annotations"
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
 	"github.com/EROQIN/relite-reader/backend/internal/bookmarks"
 	"github.com/EROQIN/relite-reader/backend/internal/books"
@@ -33,6 +34,7 @@ func NewRouterWithAuthAndWebDAV(
 	secret []byte,
 	webSvc *webdav.Service,
 	booksStore books.Store,
+	annotationsStore annotations.Store,
 	bookmarksStore bookmarks.Store,
 	prefsStore preferences.Store,
 	progressStore progress.Store,
@@ -43,6 +45,7 @@ func NewRouterWithAuthAndWebDAV(
 	authHandler := handlers.NewAuthHandler(svc, secret)
 	webHandler := handlers.NewWebDAVHandler(secret, webSvc)
 	booksHandler := handlers.NewBooksHandler(secret, booksStore)
+	annotationsHandler := handlers.NewAnnotationsHandler(secret, annotationsStore)
 	bookmarksHandler := handlers.NewBookmarksHandler(secret, bookmarksStore)
 	prefsHandler := handlers.NewPreferencesHandler(secret, prefsStore)
 	progressHandler := handlers.NewProgressHandler(secret, progressStore)
@@ -53,6 +56,7 @@ func NewRouterWithAuthAndWebDAV(
 	mux.Handle("/api/webdav", webHandler)
 	mux.Handle("/api/webdav/", webHandler)
 	mux.Handle("/api/books", booksHandler)
+	mux.Handle("/api/annotations/", annotationsHandler)
 	mux.Handle("/api/bookmarks/", bookmarksHandler)
 	mux.Handle("/api/preferences", prefsHandler)
 	mux.Handle("/api/progress/", progressHandler)

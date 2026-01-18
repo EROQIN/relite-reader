@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/EROQIN/relite-reader/backend/internal/annotations"
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
 	"github.com/EROQIN/relite-reader/backend/internal/bookmarks"
 	"github.com/EROQIN/relite-reader/backend/internal/books"
@@ -32,7 +33,8 @@ func TestRouterWithWebDAVRoutes(t *testing.T) {
 	key, _ := webdav.ParseKey("00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff")
 	webSvc := webdav.NewService(webStore, noopClient{}, key, bookStore, nil)
 
-	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt"), webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore, nil)
+	annotationsStore := annotations.NewMemoryStore()
+	router := apphttp.NewRouterWithAuthAndWebDAV(authSvc, []byte("jwt"), webSvc, bookStore, annotationsStore, bookmarksStore, prefsStore, progressStore, tasksStore, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/webdav", nil)
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)

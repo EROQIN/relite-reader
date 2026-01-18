@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/EROQIN/relite-reader/backend/internal/annotations"
 	"github.com/EROQIN/relite-reader/backend/internal/auth"
 	"github.com/EROQIN/relite-reader/backend/internal/bookmarks"
 	"github.com/EROQIN/relite-reader/backend/internal/books"
@@ -45,6 +46,7 @@ func main() {
 	}
 	authSvc := auth.NewService(userStore)
 	var bookStore books.Store = books.NewMemoryStore()
+	var annotationsStore annotations.Store = annotations.NewMemoryStore()
 	var bookmarksStore bookmarks.Store = bookmarks.NewMemoryStore()
 	var prefsStore preferences.Store = preferences.NewMemoryStore()
 	var progressStore progress.Store = progress.NewMemoryStore()
@@ -55,6 +57,11 @@ func main() {
 			log.Fatal(err)
 		}
 		bookStore = pgBooks
+		pgAnnotations := annotations.NewPostgresStore(pgPool)
+		if err := pgAnnotations.EnsureSchema(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+		annotationsStore = pgAnnotations
 		pgPrefs := preferences.NewPostgresStore(pgPool)
 		if err := pgPrefs.EnsureSchema(context.Background()); err != nil {
 			log.Fatal(err)
@@ -138,7 +145,7 @@ func main() {
 	queue.Start(ctx)
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, bookmarksStore, prefsStore, progressStore, tasksStore, queue),
+		Handler: apphttp.NewRouterWithAuthAndWebDAV(authSvc, jwtSecret, webSvc, bookStore, annotationsStore, bookmarksStore, prefsStore, progressStore, tasksStore, queue),
 	}
 	log.Fatal(srv.ListenAndServe())
 }

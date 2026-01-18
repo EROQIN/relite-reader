@@ -164,6 +164,12 @@ Base URL: `/api`
   - Body: `{ "label": "Chapter 3", "location": 0.42 }`
 - `DELETE /bookmarks/{bookId}/{id}`
 
+### Annotations
+- `GET /annotations/{bookId}`
+- `POST /annotations/{bookId}`
+  - Body: `{ "location": 0.42, "quote": "Highlighted text", "note": "Optional note", "color": "#ffcc00" }`
+- `DELETE /annotations/{bookId}/{id}`
+
 ### Tasks
 - `GET /tasks`
   - Returns the user's task queue entries and status.
