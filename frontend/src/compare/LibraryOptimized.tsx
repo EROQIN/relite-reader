@@ -18,7 +18,7 @@ export default function LibraryOptimized({
   onRemove,
   onOpen,
 }: Props) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [query, setQuery] = useState('')
   const filteredItems = useMemo(() => {
     if (!query.trim()) return localItems
@@ -41,6 +41,12 @@ export default function LibraryOptimized({
     }
     return map
   }, [localItems])
+  const timestampFormatter = useMemo(() => {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : locale, {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    })
+  }, [locale])
   return (
     <section className="library-optimized">
       <header className="hero">
@@ -98,7 +104,11 @@ export default function LibraryOptimized({
                       ) : null}
                       {item.lastOpened && (
                         <span className="timestamp">
-                          {t('library.item.lastOpened', { time: item.lastOpened })}
+                          {t('library.item.lastOpened', {
+                            time: timestampFormatter.format(
+                              new Date(item.lastOpened)
+                            ),
+                          })}
                         </span>
                       )}
                     </div>
